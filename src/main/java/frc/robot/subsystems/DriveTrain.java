@@ -4,11 +4,14 @@
 
 package frc.robot.subsystems;
 
+import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,9 +31,14 @@ public class DriveTrain extends SubsystemBase {
   public static Solenoid solenoid;
   public static Compressor compressor;
 
+  public static Encoder leftEncoder;
+  public static Encoder rightEncoder;
+
+  private AHRS gyro;
+
   /** Creates a new ExampleSubsystem. */
   public DriveTrain() {
-    //NavX = new Gyro(SPI.Port.kMXP);
+    gyro = new AHRS(SPI.Port.kMXP);
 
     LeftTop = new CANSparkMax(DriveTrainConstants.LeftTopID, MotorType.kBrushless);
 		LeftBottom1 = new CANSparkMax(DriveTrainConstants.LeftBottom1ID, MotorType.kBrushless);
@@ -43,10 +51,10 @@ public class DriveTrain extends SubsystemBase {
     solenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
     compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
-    //leftEncoder = new Encoder(5, 6, false, Encoder.EncodingType.k4X);
-		//rightEncoder = new Encoder(7, 8, false, Encoder.EncodingType.k4X);
+    leftEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
+		rightEncoder = new Encoder(2, 3, false, Encoder.EncodingType.k4X);
 
-    //resetEncoder();
+    resetEncoder();
     //resetGyro();
   }
 
@@ -68,13 +76,13 @@ public class DriveTrain extends SubsystemBase {
   
   // Method to reset the encoder values
 	public void resetEncoder() {
-		//leftEncoder.reset();
-		//rightEncoder.reset();
+		leftEncoder.reset();
+		rightEncoder.reset();
 	}
 
 	// Method to reset the spartan board gyro values
 	public void resetGyro() {
-		//gyro.reset(); 
+		gyro.reset(); 
 	}
 
   public void SetLeft(double speed) {
