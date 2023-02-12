@@ -8,6 +8,8 @@ import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -17,8 +19,10 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.DriveTrainConstants;
+import frc.robot.commands.ArcadeDrive;
 
 public class DriveTrain extends SubsystemBase {
+  private ArcadeDrive arcadeDrive;
 
   private CANSparkMax LeftTop;
   private CANSparkMax LeftBottom1;
@@ -33,6 +37,8 @@ public class DriveTrain extends SubsystemBase {
 
   public static Encoder leftEncoder;
   public static Encoder rightEncoder;
+
+  private final DifferentialDriveOdometry m_Odometry;
 
   private AHRS gyro;
 
@@ -54,6 +60,10 @@ public class DriveTrain extends SubsystemBase {
     leftEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
 		rightEncoder = new Encoder(2, 3, false, Encoder.EncodingType.k4X);
 
+    //rightEncoder.
+
+    m_Odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), 0, 0);
+
     resetEncoder();
     //resetGyro();
   }
@@ -67,6 +77,7 @@ public class DriveTrain extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    m_Odometry.update(gyro.getRotation2d(), leftEncoder.getRaw(), rightEncoder.getRaw());
   }
 
   @Override
@@ -86,9 +97,9 @@ public class DriveTrain extends SubsystemBase {
 	}
 
   public void SetLeft(double speed) {
-		LeftTop.set(speed);
-		LeftBottom1.set(-speed);
-		LeftBottom2.set(-speed);
+		LeftTop.set(-speed);
+		LeftBottom1.set(speed);
+		LeftBottom2.set(speed);
 	}
 
 	// Setting the right master Talon's speed to the given parameter

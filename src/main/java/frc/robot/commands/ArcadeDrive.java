@@ -62,7 +62,7 @@ public void execute() {
   double sign = Math.signum(throttle);
   throttle = sign * Math.pow(throttle, 2);
 
- steer = RobotContainer.player1.getRawAxis(0);
+ steer = -RobotContainer.player1.getRawAxis(0);
  sign = Math.signum(steer);
   steer = sign * Math.pow(steer, 2) * TeleopDriveConstants.STEER_SCALAR;  
 
@@ -70,7 +70,7 @@ public void execute() {
           throttle = 0;
      }
 
-     if(Math.abs(steer) < 0.025f) {
+     if(Math.abs(steer) < 0.035f) {
          steer = 0;
      }
 
@@ -176,5 +176,6 @@ public void execute() {
   @Override
   public boolean isFinished() {
     return false;
+
   }
 }
