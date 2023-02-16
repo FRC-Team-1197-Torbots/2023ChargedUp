@@ -4,6 +4,7 @@ import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorSensorV3.RawColor;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -17,7 +18,7 @@ public class ColorSensorTest extends CommandBase {
         hopperSubsystem = subsystem;
 
         addRequirements(subsystem);
-
+        
     }
     @Override
     public void initialize() {}
@@ -26,6 +27,7 @@ public class ColorSensorTest extends CommandBase {
     public void execute() {
         Color color = hopperSubsystem.colorsensor.getColor();
         boolean connected = hopperSubsystem.colorsensor.isConnected();
+        
         //int red = rawcolor.red;
         //int green = rawcolor.green;
         //int blue = rawcolor.blue;
@@ -50,8 +52,8 @@ public class ColorSensorTest extends CommandBase {
         
         ColorMatch m_colorMatcher = new ColorMatch();
 
-        Color kBlueTarget = new Color(0.277344, 0.479492, 0.243408);
-        Color kYellowTarget = new Color(0.304443, 0.487549, 0.208496);
+        Color kBlueTarget = new Color(0.269775, 0.474121, 0.365234);
+        Color kYellowTarget = new Color(0.304, 0.487, 0.116943);
 
     /**
      * Run the color match algorithm on our detected color
@@ -59,13 +61,23 @@ public class ColorSensorTest extends CommandBase {
     String colorString;
     ColorMatchResult match = m_colorMatcher.matchClosestColor(color);
 
-    if (match.color == kBlueTarget) {
-      colorString = "Cube";
-    } else if (match.color == kYellowTarget) {
-      colorString = "Cone";
-    } else {
+
+    if(hopperSubsystem.breakBeam.get()) {
+      if (color.blue >= 0.365234) {
+        colorString = "Cube";
+        System.out.println("i saw a cube!");
+      } else {
+        colorString = "Cone";
+        System.out.println("i saw a cone!");
+    }}
+    else{
       colorString = "None";
+      System.out.println("i saw a nothing!");
     }
+
+
+    SmartDashboard.putBoolean("Limit Switch",hopperSubsystem.limitSwitch.get());
+    SmartDashboard.putBoolean("Breakbeam",hopperSubsystem.breakBeam.get());
 
     SmartDashboard.putString("Object", colorString);
 
