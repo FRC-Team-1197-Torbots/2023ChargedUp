@@ -6,8 +6,10 @@ package frc.robot;
 
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.ColorSensorTest;
 import frc.robot.commands.ArcadeDrive;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Hopper;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -23,6 +25,8 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveTrain DriveTrainSubsystem;
   private ArcadeDrive arcadeDrive;
+  private Hopper hopperSubsystem;
+  private ColorSensorTest colorsensor;
 
   public static XboxController player1;
   public static XboxController player2;
@@ -31,6 +35,8 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     DriveTrainSubsystem = new DriveTrain();
+    hopperSubsystem = new Hopper();
+    colorsensor = new ColorSensorTest(hopperSubsystem);
     arcadeDrive = new ArcadeDrive(DriveTrainSubsystem);
     //IntakeSubsystem = new Intake();
     //moveIntake = new MoveIntake(IntakeSubsystem);
@@ -40,6 +46,7 @@ public class RobotContainer {
 
     DriveTrainSubsystem.setDefaultCommand(arcadeDrive);
     //IntakeSubsystem.setDefaultCommand(moveIntake);
+    hopperSubsystem.setDefaultCommand(colorsensor);
 
     //initialize_Subsystems();
     configureButtonBindings();
