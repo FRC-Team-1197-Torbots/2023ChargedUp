@@ -46,6 +46,7 @@ public class ColorSensorTest extends CommandBase {
         SmartDashboard.putNumber("Blue", color.blue);
         SmartDashboard.putNumber("IR", IR);
         SmartDashboard.putString("color",color.toString());
+        System.out.println(color.toString());
 
         
         ColorMatch m_colorMatcher = new ColorMatch();
