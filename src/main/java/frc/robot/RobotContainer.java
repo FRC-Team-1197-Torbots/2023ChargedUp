@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.Intake;
+import frc.robot.commands.MoveIntake;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -23,7 +25,8 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveTrain DriveTrainSubsystem;
   private ArcadeDrive arcadeDrive;
-
+  private final Intake IntakeSubsystem;
+  private MoveIntake moveIntake;
   public static XboxController player1;
   public static XboxController player2;
 
@@ -32,6 +35,8 @@ public class RobotContainer {
     // Configure the trigger bindings
     DriveTrainSubsystem = new DriveTrain();
     arcadeDrive = new ArcadeDrive(DriveTrainSubsystem);
+    IntakeSubsystem = new Intake();
+    moveIntake = new MoveIntake(IntakeSubsystem);
     //IntakeSubsystem = new Intake();
     //moveIntake = new MoveIntake(IntakeSubsystem);
 
@@ -39,6 +44,7 @@ public class RobotContainer {
     player2 = new XboxController(1);
 
     DriveTrainSubsystem.setDefaultCommand(arcadeDrive);
+    IntakeSubsystem.setDefaultCommand(moveIntake);
     //IntakeSubsystem.setDefaultCommand(moveIntake);
 
     //initialize_Subsystems();
