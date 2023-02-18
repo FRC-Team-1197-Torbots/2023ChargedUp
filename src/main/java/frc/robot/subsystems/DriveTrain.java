@@ -6,15 +6,19 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -62,10 +66,11 @@ public class DriveTrain extends SubsystemBase {
 
     //rightEncoder.
 
-    m_Odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), 0, 0);
-
     resetEncoder();
-    //resetGyro();
+    resetGyro();
+
+    m_Odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
+    m_Odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), new Pose2d());
   }
 
   /**
@@ -74,10 +79,92 @@ public class DriveTrain extends SubsystemBase {
    * @return a command
    */
 
+  public void setBreakMode(){
+    LeftTop.setIdleMode(IdleMode.kBrake);
+    LeftBottom1.setIdleMode(IdleMode.kBrake);
+    LeftBottom2.setIdleMode(IdleMode.kBrake);
+    RightTop.setIdleMode(IdleMode.kBrake);
+    RightBottom1.setIdleMode(IdleMode.kBrake);
+    RightBottom2.setIdleMode(IdleMode.kBrake);
+  }
+
+  public void setCoastMode(){
+    LeftTop.setIdleMode(IdleMode.kCoast);
+    LeftBottom1.setIdleMode(IdleMode.kCoast);
+    LeftBottom2.setIdleMode(IdleMode.kCoast);
+    RightTop.setIdleMode(IdleMode.kCoast);
+    RightBottom1.setIdleMode(IdleMode.kCoast);
+    RightBottom2.setIdleMode(IdleMode.kCoast);
+  }
+
+  public double getRightVelocity() {
+    return rightEncoder.getRate();
+  }
+  
+  public double getLeftVelocity() {
+    return -leftEncoder.getRate();
+  }
+  
+  public double getLeftEncoder() {
+    return -leftEncoder.getRaw();
+  }
+  
+  public double getRightEncoder() {
+    return rightEncoder.getRaw();
+  }
+
+  public double getAverageEncoder(){
+    return ((getLeftEncoder() + getRightEncoder()) / 2.0);
+  }
+
+  public double getHeading(){
+    return gyro.getRotation2d().getDegrees();
+  }
+
+  public double getTurnRate(){
+    return -gyro.getRate();
+  }
+
+  public Pose2d getPose(){
+    return m_Odometry.getPoseMeters();
+  }
+
+  public void resetOdometry(Pose2d pose){
+    resetEncoder();
+    m_Odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), pose);
+  }
+
+  public DifferentialDriveWheelSpeeds gWheelSpeeds(){
+    return new DifferentialDriveWheelSpeeds(getLeftVelocity(), getRightVelocity());
+  }
+
+  public void arcadeDriveVolts(double leftVolts, double rightVolts){
+    setLeftVoltage(leftVolts);
+    setRightVoltage(rightVolts);
+  }
+
+  public void setLeftVoltage(double leftVolts){
+    LeftTop.setVoltage(leftVolts);
+    LeftBottom1.setVoltage(leftVolts);
+    LeftBottom2.setVoltage(leftVolts);
+  }
+
+  public void setRightVoltage(double rightVolts){
+    LeftTop.setVoltage(rightVolts);
+    LeftBottom1.setVoltage(rightVolts);
+    LeftBottom2.setVoltage(rightVolts);
+  }
+
+  
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    m_Odometry.update(gyro.getRotation2d(), leftEncoder.getRaw(), rightEncoder.getRaw());
+    m_Odometry.update(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
+
+    SmartDashboard.putNumber("Left Encoder Value Meters: ", getLeftEncoder());
+    SmartDashboard.putNumber("Right Encoder Value Meters", getRightEncoder());
+    SmartDashboard.putNumber("Gyro Heading", getHeading());
   }
 
   @Override
@@ -93,7 +180,8 @@ public class DriveTrain extends SubsystemBase {
 
 	// Method to reset the spartan board gyro values
 	public void resetGyro() {
-		gyro.reset(); 
+		gyro.reset();
+    gyro.calibrate(); 
 	}
 
   public void SetLeft(double speed) {
