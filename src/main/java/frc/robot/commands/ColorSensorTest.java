@@ -1,5 +1,8 @@
 package frc.robot.commands;
 
+import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonTrackedTarget;
+
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorSensorV3.RawColor;
@@ -16,7 +19,7 @@ public class ColorSensorTest extends CommandBase {
 
     public ColorSensorTest(Hopper subsystem) {
         hopperSubsystem = subsystem;
-
+        
         addRequirements(subsystem);
         
     }
@@ -27,6 +30,9 @@ public class ColorSensorTest extends CommandBase {
     public void execute() {
         Color color = hopperSubsystem.colorsensor.getColor();
         boolean connected = hopperSubsystem.colorsensor.isConnected();
+        
+
+
         
         //int red = rawcolor.red;
         //int green = rawcolor.green;
@@ -43,12 +49,30 @@ public class ColorSensorTest extends CommandBase {
          * Open Smart Dashboard or Shuffleboard to see the color detected by the 
          * sensor.
          */
-        SmartDashboard.putNumber("Red", color.red);
+        /*SmartDashboard.putNumber("Red", color.red);
         SmartDashboard.putNumber("Green", color.green);
         SmartDashboard.putNumber("Blue", color.blue);
         SmartDashboard.putNumber("IR", IR);
         SmartDashboard.putString("color",color.toString());
         System.out.println(color.toString());
+        */
+
+        var camresult = hopperSubsystem.hoppercam.getLatestResult();
+        PhotonTrackedTarget camtarget = camresult.getBestTarget();
+        
+
+        if(camtarget != null){
+          double skew = camtarget.getSkew();
+          SmartDashboard.putNumber("skew", skew);
+          SmartDashboard.putString("status","Cone found, rotate " + -skew + " degrees");
+        }
+        else if(hopperSubsystem.breakBeam.get()){
+          SmartDashboard.putString("status","Cube found");
+        }
+        else{
+          SmartDashboard.putString("status", "No object found");
+        }        
+
 
         
         ColorMatch m_colorMatcher = new ColorMatch();
@@ -63,7 +87,7 @@ public class ColorSensorTest extends CommandBase {
     ColorMatchResult match = m_colorMatcher.matchClosestColor(color);
 
 
-    if(hopperSubsystem.breakBeam.get()) {
+/*    if(hopperSubsystem.breakBeam.get()) {
       if (color.blue >= 0.365234) {
         colorString = "Cube";
         System.out.println("i saw a cube!");
@@ -75,12 +99,10 @@ public class ColorSensorTest extends CommandBase {
       colorString = "None";
       System.out.println("i saw a nothing!");
     }
-
-
-    SmartDashboard.putBoolean("Limit Switch",hopperSubsystem.limitSwitch.get());
+*/
     SmartDashboard.putBoolean("Breakbeam",hopperSubsystem.breakBeam.get());
 
-    SmartDashboard.putString("Object", colorString);
+    //SmartDashboard.putString("Object", colorString);
 
 
     }

@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.photonvision.PhotonCamera;
+
 import com.revrobotics.ColorSensorV3;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -10,6 +12,7 @@ public class Hopper extends SubsystemBase {
     public static ColorSensorV3 colorsensor;
     public static DigitalInput limitSwitch;
     public static DigitalInput breakBeam;
+    public static PhotonCamera hoppercam;
 
     private final I2C.Port i2cPort = I2C.Port.kOnboard
     ;
@@ -20,6 +23,8 @@ public class Hopper extends SubsystemBase {
         colorsensor = new ColorSensorV3(i2cPort);
         limitSwitch = new DigitalInput(4);
         breakBeam = new DigitalInput(5);
+        hoppercam = new PhotonCamera("1197HopperCam");
+        
 
     }
 }
