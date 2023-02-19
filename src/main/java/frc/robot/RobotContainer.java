@@ -4,14 +4,29 @@
 
 package frc.robot;
 
+import frc.robot.Constants.AutoDriveConstants;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ArcadeDrive;
 import frc.robot.subsystems.DriveTrain;
+
+import java.io.IOException;
+import java.nio.file.Path;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
@@ -54,13 +69,41 @@ public class RobotContainer {
     //initialize_Subsystems();
     configureButtonBindings();
     //configureBindings();
-    chooser.addOption("Test Path: ", arcadeDrive);
-    chooser.addOption("Test Path 2: ", arcadeDrive);
+    chooser.addOption("Test Path: ", loadPathPlannerTrajectoryToRamseteCommand(
+      "C:" + "\\" + "Users"+"\\" + "CAD1" + "\\" + "Desktop" + "\\" + "2023ChargedUp" + "\\" + "src" + "\\" + "main" + "\\" + "deploy" + "\\" + "pathplanner" + "\\" + "generatedJSON" + "\\" + "TestPath.wpilib.json", 
+      true));
+    chooser.addOption("Straight Path: ", loadPathPlannerTrajectoryToRamseteCommand("C:" + "\\" + "Users"+"\\" + "CAD1" + "\\" + "Desktop" + "\\" + "2023ChargedUp" + "\\" + "src" + "\\" + "main" + "\\" + "deploy" + "\\" + "pathplanner" + "\\" + "generatedJSON" + "\\" + "StraightPath.wpilib.json", 
+    true));
 
     Shuffleboard.getTab("Autonomous").add(chooser);
   }
 
-  //public Command loadPathPlannerTrajectoryToRamseteCommand(String filename, boolean resetOdometry, Trajectory trajectory; );
+  public Command loadPathPlannerTrajectoryToRamseteCommand(String filename, boolean resetOdometry){
+    Trajectory trajectory;
+    try{
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(filename);
+      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    }
+    catch(IOException exception){
+      DriverStation.reportError("Unable to open trajectory" + filename, exception.getStackTrace());
+      System.out.println("Unable to read from file " + filename);
+      return new InstantCommand();
+    }
+
+    RamseteCommand ramseteCommand = new RamseteCommand(trajectory, DriveTrainSubsystem::getPose, 
+    new RamseteController(AutoDriveConstants.kRamseteB, AutoDriveConstants.kRamseteZeta), 
+    new SimpleMotorFeedforward(AutoDriveConstants.ksVolts, AutoDriveConstants.kVoltSecondPerMeter, AutoDriveConstants.kVoltSecondSquaredPerMeter)
+    , AutoDriveConstants.kDriveKinematics, DriveTrainSubsystem::getWheelSpeeds, 
+    new PIDController(AutoDriveConstants.kPDriveVel, 0, 0), new PIDController(AutoDriveConstants.kPDriveVel, 0, 0), DriveTrainSubsystem::arcadeDriveVolts, DriveTrainSubsystem);
+
+    if(resetOdometry){
+      return new SequentialCommandGroup(new InstantCommand(()->DriveTrainSubsystem.resetOdometry(trajectory.getInitialPose())), ramseteCommand);
+    }
+    else{
+      return ramseteCommand;
+    }
+  }
+  
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -83,6 +126,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(DriveTrainSubsystem);
+    return chooser.getSelected();
   }
 }
