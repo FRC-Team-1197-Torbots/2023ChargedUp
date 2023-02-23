@@ -36,7 +36,7 @@ public class DriveTrain extends SubsystemBase {
   private CANSparkMax RightBottom1;
   private CANSparkMax RightBottom2;
 
-  public static Solenoid solenoid;
+  public static Solenoid driveSolenoid;
   public static Compressor compressor;
 
   public static Encoder leftEncoder;
@@ -58,7 +58,7 @@ public class DriveTrain extends SubsystemBase {
 		RightBottom1 = new CANSparkMax(DriveTrainConstants.RightBottom1ID, MotorType.kBrushless);		
 		RightBottom2 = new CANSparkMax(DriveTrainConstants.RightBottom2ID, MotorType.kBrushless);
 
-    solenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
+    driveSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
     compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
     leftEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
@@ -203,12 +203,12 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void shiftToLowGear() {
-		solenoid.set(true);
+		driveSolenoid.set(true);
 	}
 	
 	// Method to shift the drive to high gear
 	public void shiftToHighGear() {
-		solenoid.set(false);
+		driveSolenoid.set(false);
 	}
 
   /**

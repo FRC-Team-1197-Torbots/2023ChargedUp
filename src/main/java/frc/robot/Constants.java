@@ -59,4 +59,15 @@ public final class Constants {
     public static final double kRamseteB = 2;
     public static final double kRamseteZeta = 0.7;
   }
+
+  public static class ElevatorArmConstants{
+    public static final int ElMotor1ID = 7;
+    public static final int ElMotor2ID = 8;
+    public static final int ArmID = 9;
+    public static final int ClawID = 10;
+    public static final int limitSwitch1Port = 0;
+    public static final int limitSwitch2Port = 1;
+    public static final int armSwitch1Port = 2;
+    public static final int armSwitch2Port = 3;
+  }
 }
