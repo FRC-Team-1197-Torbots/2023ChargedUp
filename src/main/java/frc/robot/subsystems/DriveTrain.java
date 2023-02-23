@@ -134,7 +134,7 @@ public class DriveTrain extends SubsystemBase {
     m_Odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), pose);
   }
 
-  public DifferentialDriveWheelSpeeds gWheelSpeeds(){
+  public DifferentialDriveWheelSpeeds getWheelSpeeds(){
     return new DifferentialDriveWheelSpeeds(getLeftVelocity(), getRightVelocity());
   }
 
