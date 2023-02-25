@@ -12,6 +12,7 @@ public class Elevator extends SubsystemBase{
     private CANSparkMax elMotor2;
     private DigitalInput limitSwitch1;
     private DigitalInput limitSwitch2;
+    
 
     public Elevator(){
         elMotor1 = new CANSparkMax(ElevatorArmConstants.ElMotor1ID, MotorType.kBrushless);

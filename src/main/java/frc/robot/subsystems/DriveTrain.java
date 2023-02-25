@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
@@ -46,6 +47,8 @@ public class DriveTrain extends SubsystemBase {
 
   private AHRS gyro;
 
+  private final DifferentialDrivePoseEstimator poseEstimator;
+
   /** Creates a new ExampleSubsystem. */
   public DriveTrain() {
     gyro = new AHRS(SPI.Port.kMXP);
@@ -65,6 +68,7 @@ public class DriveTrain extends SubsystemBase {
 		rightEncoder = new Encoder(2, 3, false, Encoder.EncodingType.k4X);
 
     //rightEncoder.
+    poseEstimator = new DifferentialDrivePoseEstimator(null, null, getHeading(), getAverageEncoder(), getPose());
 
     resetEncoder();
     resetGyro();

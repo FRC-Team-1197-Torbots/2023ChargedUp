@@ -52,10 +52,10 @@ public void initialize() {}
 @Override
 public void execute() {
     driveSubsystem.compressor.enableDigital();
-    if(RobotContainer.player1.getAButtonPressed() && driveSubsystem.driveSolenoid.get()){
+    if(RobotContainer.player1.getXButtonPressed() && driveSubsystem.driveSolenoid.get()){
         driveSubsystem.shiftToLowGear();
     }
-    if(RobotContainer.player1.getYButtonPressed() && !driveSubsystem.driveSolenoid.get()){
+    if(RobotContainer.player1.getBButtonPressed() && !driveSubsystem.driveSolenoid.get()){
         driveSubsystem.shiftToHighGear();
     }
   throttle = -RobotContainer.player1.getRawAxis(1);

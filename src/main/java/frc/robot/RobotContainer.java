@@ -6,7 +6,6 @@ package frc.robot;
 
 import frc.robot.Constants.AutoDriveConstants;
 import frc.robot.Constants.DriveTrainConstants;
-import frc.robot.commands.Autos;
 import frc.robot.commands.ArcadeDrive;
 import frc.robot.subsystems.DriveTrain;
 
