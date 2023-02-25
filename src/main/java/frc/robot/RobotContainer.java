@@ -11,10 +11,15 @@ import frc.robot.subsystems.DriveTrain;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.function.BiConsumer;
+
+import com.pathplanner.lib.auto.RamseteAutoBuilder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -26,6 +31,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
@@ -45,6 +52,10 @@ public class RobotContainer {
   private MoveIntake moveIntake;
   public static XboxController player1;
   public static XboxController player2;
+
+  HashMap<String, Command> eventMap = new HashMap<>();
+
+  private RamseteAutoBuilder m_autoBuilder;
 
   SendableChooser<Command> chooser = new SendableChooser<>();
 
@@ -102,6 +113,21 @@ public class RobotContainer {
       return ramseteCommand;
     }
   }
+
+  private void initAutoBuilder() {
+    eventMap.put("wait", new WaitCommand(5));
+    BiConsumer<Double, Double> bc = (x, y) -> { System.out.println(x + y);};
+    bc.accept(0.5, 0.5);
+
+    m_autoBuilder =
+        new RamseteAutoBuilder(
+            arcadeDrive::getPoseMeters,
+            arcadeDrive::resetPose,
+            new RamseteController(AutoDriveConstants.kRamseteB, AutoDriveConstants.kRamseteZeta),
+            new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidthMeters), bc, eventMap, new Subsystem[] DriveTrainSubsystem); 
+              
+    
+}
   
 
   /**
