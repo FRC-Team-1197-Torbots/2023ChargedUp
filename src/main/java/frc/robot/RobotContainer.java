@@ -6,19 +6,22 @@ package frc.robot;
 
 import frc.robot.Constants.AutoDriveConstants;
 import frc.robot.Constants.DriveTrainConstants;
-import frc.robot.commands.ArcadeDrive;
+import frc.robot.Constants.TeleopDriveConstants;
 import frc.robot.subsystems.DriveTrain;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
+import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.RamseteAutoBuilder;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
@@ -37,6 +40,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
 import frc.robot.commands.MoveIntake;
+import frc.robot.commands.Autos.TestAuto;
+import frc.robot.commands.Drive.ArcadeDrive;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -46,87 +51,57 @@ import frc.robot.commands.MoveIntake;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveTrain DriveTrainSubsystem;
-  private ArcadeDrive arcadeDrive;
-  private final Intake IntakeSubsystem;
-  private MoveIntake moveIntake;
-  public static XboxController player1;
-  public static XboxController player2;
+  private final DriveTrain DriveTrainSubsystem = new DriveTrain();
+  private ArcadeDrive arcadeDrive = new ArcadeDrive(DriveTrainSubsystem);
+  private final Intake IntakeSubsystem = new Intake();
+  private MoveIntake moveIntake = new MoveIntake(IntakeSubsystem);
+
+  public static XboxController player1 = new XboxController(0);
+  public static XboxController player2 = new XboxController(1);
 
   HashMap<String, Command> eventMap = new HashMap<>();
 
   private RamseteAutoBuilder m_autoBuilder;
-
-  SendableChooser<Command> chooser = new SendableChooser<>();
+  private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
-    DriveTrainSubsystem = new DriveTrain();
-    arcadeDrive = new ArcadeDrive(DriveTrainSubsystem);
-    IntakeSubsystem = new Intake();
-    moveIntake = new MoveIntake(IntakeSubsystem);
-    //IntakeSubsystem = new Intake();
-    //moveIntake = new MoveIntake(IntakeSubsystem);
-
-    player1 = new XboxController(0);
-    player2 = new XboxController(1);
-
-    DriveTrainSubsystem.setDefaultCommand(arcadeDrive);
-    IntakeSubsystem.setDefaultCommand(moveIntake);
-    //IntakeSubsystem.setDefaultCommand(moveIntake);
-
-    //initialize_Subsystems();
+    initAutoBuilder();
+    initializeSubsystems();
     configureButtonBindings();
     //configureBindings();
-    chooser.addOption("Test Path: ", loadPathPlannerTrajectoryToRamseteCommand(
-      "C:" + "\\" + "Users"+"\\" + "CAD1" + "\\" + "Desktop" + "\\" + "2023ChargedUp" + "\\" + "src" + "\\" + "main" + "\\" + "deploy" + "\\" + "pathplanner" + "\\" + "generatedJSON" + "\\" + "TestPath.wpilib.json", 
-      true));
-    chooser.addOption("Straight Path: ", loadPathPlannerTrajectoryToRamseteCommand("C:" + "\\" + "Users"+"\\" + "CAD1" + "\\" + "Desktop" + "\\" + "2023ChargedUp" + "\\" + "src" + "\\" + "main" + "\\" + "deploy" + "\\" + "pathplanner" + "\\" + "generatedJSON" + "\\" + "StraightPath.wpilib.json", 
-    true));
-
-    Shuffleboard.getTab("Autonomous").add(chooser);
   }
 
-  public Command loadPathPlannerTrajectoryToRamseteCommand(String filename, boolean resetOdometry){
-    Trajectory trajectory;
-    try{
-      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(filename);
-      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    }
-    catch(IOException exception){
-      DriverStation.reportError("Unable to open trajectory" + filename, exception.getStackTrace());
-      System.out.println("Unable to read from file " + filename);
-      return new InstantCommand();
-    }
-
-    RamseteCommand ramseteCommand = new RamseteCommand(trajectory, DriveTrainSubsystem::getPose, 
-    new RamseteController(AutoDriveConstants.kRamseteB, AutoDriveConstants.kRamseteZeta), 
-    new SimpleMotorFeedforward(AutoDriveConstants.ksVolts, AutoDriveConstants.kVoltSecondPerMeter, AutoDriveConstants.kVoltSecondSquaredPerMeter)
-    , AutoDriveConstants.kDriveKinematics, DriveTrainSubsystem::getWheelSpeeds, 
-    new PIDController(AutoDriveConstants.kPDriveVel, 0, 0), new PIDController(AutoDriveConstants.kPDriveVel, 0, 0), DriveTrainSubsystem::arcadeDriveVolts, DriveTrainSubsystem);
-
-    if(resetOdometry){
-      return new SequentialCommandGroup(new InstantCommand(()->DriveTrainSubsystem.resetOdometry(trajectory.getInitialPose())), ramseteCommand);
-    }
-    else{
-      return ramseteCommand;
-    }
+  public void initializeSubsystems(){
+    DriveTrainSubsystem.setDefaultCommand(arcadeDrive);
+    IntakeSubsystem.setDefaultCommand(moveIntake);
   }
 
   private void initAutoBuilder() {
     eventMap.put("wait", new WaitCommand(5));
     BiConsumer<Double, Double> bc = (x, y) -> { System.out.println(x + y);};
     bc.accept(0.5, 0.5);
+    Subsystem[] subArray = {DriveTrainSubsystem};
 
     m_autoBuilder =
         new RamseteAutoBuilder(
-            arcadeDrive::getPoseMeters,
-            arcadeDrive::resetPose,
+            DriveTrainSubsystem::getPose,
+            DriveTrainSubsystem::resetOdometry,
             new RamseteController(AutoDriveConstants.kRamseteB, AutoDriveConstants.kRamseteZeta),
-            new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidthMeters), bc, eventMap, new Subsystem[] DriveTrainSubsystem); 
+            new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidthMeters), 
+            DriveTrainSubsystem.getFeedForward(),
+            DriveTrainSubsystem::getWheelSpeeds,
+            new PIDConstants(TeleopDriveConstants.velocitykP, TeleopDriveConstants.velocitykI, TeleopDriveConstants.velocitykD),
+            DriveTrainSubsystem::arcadeDriveVolts, 
+            eventMap, 
+            false, 
+            subArray); 
               
-    
+}
+
+public void initializeAutoChooser(){
+  m_autoChooser.addOption("TestAuto", new TestAuto(m_autoBuilder, DriveTrainSubsystem));
 }
   
 
@@ -151,6 +126,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return chooser.getSelected();
+    return m_autoChooser.getSelected();
   }
 }
