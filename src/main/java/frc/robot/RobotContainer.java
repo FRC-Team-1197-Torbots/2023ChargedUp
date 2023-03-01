@@ -80,8 +80,6 @@ public class RobotContainer {
 
   private void initAutoBuilder() {
     eventMap.put("wait", new WaitCommand(5));
-    BiConsumer<Double, Double> bc = (x, y) -> { System.out.println(x + y);};
-    bc.accept(0.5, 0.5);
     Subsystem[] subArray = {DriveTrainSubsystem};
 
     m_autoBuilder =

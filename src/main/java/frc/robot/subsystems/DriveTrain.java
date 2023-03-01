@@ -89,6 +89,16 @@ public class DriveTrain extends SubsystemBase {
    * @return a command
    */
 
+  public void setMotorState(IdleMode mode){
+    LeftTop.setIdleMode(mode);
+    LeftBottom1.setIdleMode(mode);
+    LeftBottom2.setIdleMode(mode);
+    RightTop.setIdleMode(mode);
+    RightBottom1.setIdleMode(mode);
+    RightBottom2.setIdleMode(mode);
+  }
+
+  /* 
   public void setBreakMode(){
     LeftTop.setIdleMode(IdleMode.kBrake);
     LeftBottom1.setIdleMode(IdleMode.kBrake);
@@ -106,7 +116,7 @@ public class DriveTrain extends SubsystemBase {
     RightBottom1.setIdleMode(IdleMode.kCoast);
     RightBottom2.setIdleMode(IdleMode.kCoast);
   }
-
+*/
   public double getRightVelocity() {
     return rightEncoder.getRate();
   }
@@ -137,6 +147,11 @@ public class DriveTrain extends SubsystemBase {
 
   public Pose2d getPose(){
     return m_Odometry.getPoseMeters();
+  }
+
+  public void setOdometry(Pose2d pose) {
+    gyro.setAngleAdjustment(pose.getRotation().getDegrees());
+    m_Odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), pose);
   }
 
   public void resetOdometry(Pose2d pose){
