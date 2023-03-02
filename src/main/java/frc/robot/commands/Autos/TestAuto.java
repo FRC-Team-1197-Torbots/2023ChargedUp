@@ -16,12 +16,10 @@ public class TestAuto extends SequentialCommandGroup{
         var pathTrajectory = PathPlanner.loadPath("TestPath", new PathConstraints(3.0, 2.0));
 
         var autoPath = autoBuilder.fullAuto(pathTrajectory);
-
         addCommands(
-            new SetDriveOdometry(driveTrain, pathTrajectory.getInitialPose(), 
+            new SetDriveOdometry(driveTrain, pathTrajectory.getInitialPose()), 
             autoPath, 
-            new SetMotorMode(driveTrain, IdleMode.kBrake).andThen(null));
-        
+            new SetMotorMode(driveTrain, IdleMode.kBrake));//pathTrajectory.getInitialPose());
 
     }
     
