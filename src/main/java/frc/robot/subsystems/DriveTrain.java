@@ -14,6 +14,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
@@ -46,7 +47,7 @@ public class DriveTrain extends SubsystemBase {
   public static Encoder leftEncoder;
   public static Encoder rightEncoder;
 
-  private final DifferentialDriveOdometry m_Odometry;
+  private final DifferentialDriveOdometry m_odometry;
 
   private AHRS gyro;
 
@@ -74,13 +75,13 @@ public class DriveTrain extends SubsystemBase {
 		rightEncoder = new Encoder(2, 3, false, Encoder.EncodingType.k4X);
 
     //rightEncoder.
-    poseEstimator = new DifferentialDrivePoseEstimator(null, null, getHeading(), getAverageEncoder(), getPose());
+    m_odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
+    poseEstimator = new DifferentialDrivePoseEstimator(new DifferentialDriveKinematics(0), new Rotation2d(), getHeading(), getAverageEncoder(), getPose());
 
     resetEncoder();
     resetGyro();
 
-    m_Odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
-    m_Odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), new Pose2d());
+    m_odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), new Pose2d());
   }
 
   /**
@@ -146,17 +147,18 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public Pose2d getPose(){
-    return m_Odometry.getPoseMeters();
+    return m_odometry.getPoseMeters();
   }
+
 
   public void setOdometry(Pose2d pose) {
     gyro.setAngleAdjustment(pose.getRotation().getDegrees());
-    m_Odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), pose);
+    m_odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), pose);
   }
 
   public void resetOdometry(Pose2d pose){
     resetEncoder();
-    m_Odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), pose);
+    m_odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), pose);
   }
 
   public DifferentialDriveWheelSpeeds getWheelSpeeds(){
@@ -189,7 +191,7 @@ public class DriveTrain extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    m_Odometry.update(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
+    m_odometry.update(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
 
     SmartDashboard.putNumber("Left Encoder Value Meters: ", getLeftEncoder());
     SmartDashboard.putNumber("Right Encoder Value Meters", getRightEncoder());

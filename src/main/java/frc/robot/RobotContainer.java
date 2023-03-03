@@ -7,7 +7,10 @@ package frc.robot;
 import frc.robot.Constants.AutoDriveConstants;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.TeleopDriveConstants;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Elevator;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -40,6 +43,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
 import frc.robot.commands.MoveIntake;
+import frc.robot.commands.RunElevator;
 import frc.robot.commands.Autos.TestAuto;
 import frc.robot.commands.Drive.ArcadeDrive;
 
@@ -51,10 +55,10 @@ import frc.robot.commands.Drive.ArcadeDrive;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveTrain DriveTrainSubsystem = new DriveTrain();
-  private ArcadeDrive arcadeDrive = new ArcadeDrive(DriveTrainSubsystem);
-  private final Intake IntakeSubsystem = new Intake();
-  private MoveIntake moveIntake = new MoveIntake(IntakeSubsystem);
+  //private final DriveTrain DriveTrainSubsystem = new DriveTrain();
+  //private ArcadeDrive arcadeDrive = new ArcadeDrive(DriveTrainSubsystem);
+  //private final Intake IntakeSubsystem = new Intake();
+  //private MoveIntake moveIntake = new MoveIntake(IntakeSubsystem);
 
   public static XboxController player1 = new XboxController(0);
   public static XboxController player2 = new XboxController(1);
@@ -63,6 +67,10 @@ public class RobotContainer {
 
   private RamseteAutoBuilder m_autoBuilder;
   private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
+  private final Elevator elSubsystem = new Elevator();
+  private final Arm armSystem = new Arm();
+  private final Claw clawSystem = new Claw();
+  private RunElevator runElevator = new RunElevator(armSystem, clawSystem, elSubsystem);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -74,14 +82,15 @@ public class RobotContainer {
   }
 
   public void initializeSubsystems(){
-    DriveTrainSubsystem.setDefaultCommand(arcadeDrive);
-    IntakeSubsystem.setDefaultCommand(moveIntake);
+    //DriveTrainSubsystem.setDefaultCommand(arcadeDrive);
+    //IntakeSubsystem.setDefaultCommand(moveIntake);
+    elSubsystem.setDefaultCommand(runElevator);
   }
 
   private void initAutoBuilder() {
     eventMap.put("wait", new WaitCommand(5));
-    Subsystem[] subArray = {DriveTrainSubsystem};
-
+    //Subsystem[] subArray = {DriveTrainSubsystem};
+/* 
     m_autoBuilder =
         new RamseteAutoBuilder(
             DriveTrainSubsystem::getPose,
@@ -95,11 +104,12 @@ public class RobotContainer {
             eventMap, 
             false, 
             subArray); 
+            */
               
 }
 
 public void initializeAutoChooser(){
-  m_autoChooser.addOption("TestAuto", new TestAuto(m_autoBuilder, DriveTrainSubsystem));
+  //m_autoChooser.addOption("TestAuto", new TestAuto(m_autoBuilder, DriveTrainSubsystem));
 }
   
 

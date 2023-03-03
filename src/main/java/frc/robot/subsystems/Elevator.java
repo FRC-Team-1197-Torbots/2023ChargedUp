@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorArmConstants;
@@ -10,15 +10,37 @@ import frc.robot.Constants.ElevatorArmConstants;
 public class Elevator extends SubsystemBase{
     private CANSparkMax elMotor1;
     private CANSparkMax elMotor2;
-    private DigitalInput limitSwitch1;
-    private DigitalInput limitSwitch2;
-    
+    private DigitalInput botlimitSwitch;
+    private DigitalInput toplimitSwitch;
+    private Encoder elEncoder;
 
     public Elevator(){
         elMotor1 = new CANSparkMax(ElevatorArmConstants.ElMotor1ID, MotorType.kBrushless);
         elMotor2 = new CANSparkMax(ElevatorArmConstants.ElMotor2ID, MotorType.kBrushless);
-        limitSwitch1 = new DigitalInput(ElevatorArmConstants.limitSwitch1Port);
-        limitSwitch2 = new DigitalInput(ElevatorArmConstants.limitSwitch2Port);
+        //botlimitSwitch = new DigitalInput(ElevatorArmConstants.limitSwitch1Port);
+        //toplimitSwitch = new DigitalInput(ElevatorArmConstants.limitSwitch2Port);
+        //elEncoder = new Encoder(0, 1);//Input correct channels later
     }
     
+
+
+public void SetElevatorSpeed(double speed){
+    elMotor1.set(speed);
+    elMotor2.set(speed);
+
+}
+public boolean TopSwitch(){
+    return toplimitSwitch.get();
+}
+public boolean BotSwitch(){
+    return botlimitSwitch.get();
+}
+public double GetEncoderValue(){
+    return elEncoder.get();
+}
+public double GetEncoderRate(){
+    return elEncoder.getRate();
+}
+
+
 }
