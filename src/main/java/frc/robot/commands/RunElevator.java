@@ -13,7 +13,7 @@ public class RunElevator extends CommandBase{
     private Arm arm;
     private Claw claw;
     private Elevator elevator;
-    private double speed;
+    
     public static enum ElevatorState{
         UP, DOWN, IDLE;
     }
@@ -26,11 +26,19 @@ public class RunElevator extends CommandBase{
         addRequirements(armSystem, clawSystem, elevatorSystem);
     }
     @Override
+    public void initialize() {
+        elevator.ResetEncoder();
+    }
+    @Override
+    
     public void execute(){
-        if(RobotContainer.player1.getPOV() == 0){
+        System.out.println("Encoder value " + elevator.GetEncoderValue());
+        //System.out.println("Encoder rate " + elevator.GetEncoderRate());
+        if(RobotContainer.player1.getXButton()){
             ElState = ElevatorState.UP;
+            
         }
-        else if(RobotContainer.player1.getPOV() == 180){
+        else if(RobotContainer.player1.getBButton()){
             ElState = ElevatorState.DOWN;
         }
         else{
@@ -39,23 +47,27 @@ public class RunElevator extends CommandBase{
 
         switch(ElState){
             case UP: 
-            elevator.SetElevatorSpeed(speed);
+            elevator.SetElevatorSpeed(0.25);
+            /* 
             if(elevator.TopSwitch()){
                 elevator.SetElevatorSpeed(0);}
+            */
             break;
             case DOWN: 
-            elevator.SetElevatorSpeed(-speed);
+            elevator.SetElevatorSpeed(-0.25);
+            /* 
             if(elevator.BotSwitch()){
-                elevator.SetElevatorSpeed(0);}
+                elevator.SetElevatorSpeed(0);}*/
             break;
+            
             case IDLE:
-            elevator.SetElevatorSpeed(0);
+            elevator.SetElevatorSpeed(0.05);
             break;
         }
 
             }
         
-    }
+    }//-9242 is around the max encoder value when elevator is fully extended
 
     
 
