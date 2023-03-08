@@ -69,5 +69,8 @@ public final class Constants {
     public static final int limitSwitch2Port = 1;
     public static final int armSwitch1Port = 2;
     public static final int armSwitch2Port = 3;
+    public static final double BOTTOM_POSITION = 0;
+    public static final double MID_POSITION = -4500;
+    public static final double TOP_POSITION = -9000;
   }
 }

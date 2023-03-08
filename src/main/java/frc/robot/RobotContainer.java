@@ -42,10 +42,12 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
-import frc.robot.commands.MoveIntake;
 import frc.robot.commands.RunElevator;
 import frc.robot.commands.Autos.TestAuto;
 import frc.robot.commands.Drive.ArcadeDrive;
+import frc.robot.commands.Intake.IntakeCone;
+import frc.robot.commands.Intake.IntakeCube;
+import frc.robot.commands.RunElevator.ElevatorLevel;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -55,22 +57,23 @@ import frc.robot.commands.Drive.ArcadeDrive;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  //private final DriveTrain DriveTrainSubsystem = new DriveTrain();
-  //private ArcadeDrive arcadeDrive = new ArcadeDrive(DriveTrainSubsystem);
-  //private final Intake IntakeSubsystem = new Intake();
-  //private MoveIntake moveIntake = new MoveIntake(IntakeSubsystem);
 
-  public static XboxController player1 = new XboxController(0);
-  public static XboxController player2 = new XboxController(1);
+  public static CommandXboxController player1 = new CommandXboxController(0);
+  public static CommandXboxController player2 = new CommandXboxController(1);
 
   HashMap<String, Command> eventMap = new HashMap<>();
 
   private RamseteAutoBuilder m_autoBuilder;
   private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
+  private final DriveTrain driveSubsystem = new DriveTrain();
   private final Elevator elSubsystem = new Elevator();
   private final Arm armSystem = new Arm();
   private final Claw clawSystem = new Claw();
-  private RunElevator runElevator = new RunElevator(armSystem, clawSystem, elSubsystem);
+  private final Intake intakeSystem = new Intake();
+  //private ArcadeDrive arcadeDrive = new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftY());
+  //private RunElevator runElevator = new RunElevator(armSystem, clawSystem, elSubsystem, );
+  private IntakeCone intakeCone = new IntakeCone(intakeSystem);
+  private IntakeCube intakeCube = new IntakeCube(intakeSystem);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -78,13 +81,12 @@ public class RobotContainer {
     initAutoBuilder();
     initializeSubsystems();
     configureButtonBindings();
-    //configureBindings();
+    configureButtonBindings();
   }
 
   public void initializeSubsystems(){
-    //DriveTrainSubsystem.setDefaultCommand(arcadeDrive);
-    //IntakeSubsystem.setDefaultCommand(moveIntake);
-    elSubsystem.setDefaultCommand(runElevator);
+    driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
+    elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
   }
 
   private void initAutoBuilder() {
@@ -124,6 +126,12 @@ public void initializeAutoChooser(){
    */
   private void configureButtonBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+    player1.rightTrigger().whileTrue(new IntakeCone(intakeSystem));
+    player1.leftTrigger().whileTrue(new IntakeCube(intakeSystem));
+    player1.y().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.MIDDLE));
+    player1.a().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.TOP));
+    
+
     
   }
 

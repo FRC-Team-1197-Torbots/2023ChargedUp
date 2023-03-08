@@ -9,11 +9,13 @@ import edu.wpi.first.wpilibj.Solenoid;
 //Right Bumber cone,Left Bumber cube
 public class Intake extends SubsystemBase{
     private Solenoid Intakeout;
-    private CANSparkMax Roller;
+    private CANSparkMax RollerBottom;
+    private CANSparkMax RollerTop;
     private Encoder IntakeEncoder;
     public Intake(){
         Intakeout = new Solenoid(null, 0);
-        Roller = new CANSparkMax(0, MotorType.kBrushless);
+        RollerBottom = new CANSparkMax(0, MotorType.kBrushless);
+        RollerTop = new CANSparkMax(1, MotorType.kBrushless);
         IntakeEncoder = new Encoder(0, 0);
         IntakeEncoder.reset();
     }
@@ -22,7 +24,8 @@ public class Intake extends SubsystemBase{
         return IntakeEncoder.get();
     }
     public void SetRollerSpeed(double speed){
-        Roller.set(speed);
+        RollerBottom.set(speed);
+        RollerTop.set(-speed);
     }
     public void SetSolenoid(boolean value){
         Intakeout.set(value);
