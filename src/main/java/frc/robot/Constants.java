@@ -60,6 +60,12 @@ public final class Constants {
     public static final double kRamseteZeta = 0.7;
   }
 
+  public static class AutoBalanceConstants{
+    public static final double BalancekP = 0;
+    public static final double BalancekI = 0;
+    public static final double BalancekD = 0;
+  }
+
   public static class ElevatorArmConstants{
     public static final int ElMotor1ID = 7;
     public static final int ElMotor2ID = 8;
