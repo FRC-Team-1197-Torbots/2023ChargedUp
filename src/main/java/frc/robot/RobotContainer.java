@@ -45,6 +45,8 @@ import frc.robot.subsystems.Intake;
 import frc.robot.commands.RunElevator;
 import frc.robot.commands.Autos.TestAuto;
 import frc.robot.commands.Drive.ArcadeDrive;
+import frc.robot.commands.Intake.AutoIntakeCone;
+import frc.robot.commands.Intake.AutoIntakeCube;
 import frc.robot.commands.Intake.IntakeCone;
 import frc.robot.commands.Intake.IntakeCube;
 import frc.robot.commands.RunElevator.ElevatorLevel;
@@ -91,6 +93,8 @@ public class RobotContainer {
 
   private void initAutoBuilder() {
     eventMap.put("wait", new WaitCommand(5));
+    eventMap.put("IntakeCone", new AutoIntakeCone(intakeSystem, 0.5));
+    eventMap.put("IntakeCube", new AutoIntakeCube(intakeSystem, 0.25));
     //Subsystem[] subArray = {DriveTrainSubsystem};
 /* 
     m_autoBuilder =
