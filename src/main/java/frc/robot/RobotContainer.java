@@ -42,6 +42,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
+import frc.robot.commands.RunArm;
 import frc.robot.commands.RunElevator;
 import frc.robot.commands.Autos.TestAuto;
 import frc.robot.commands.Drive.ArcadeDrive;
@@ -59,34 +60,34 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   public static CommandXboxController player1 = new CommandXboxController(0);
+  public static XboxController player1_HoldButton = new XboxController(0);
   public static CommandXboxController player2 = new CommandXboxController(1);
 
   HashMap<String, Command> eventMap = new HashMap<>();
 
   private RamseteAutoBuilder m_autoBuilder;
   private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
-  private final DriveTrain driveSubsystem = new DriveTrain();
-  private final Elevator elSubsystem = new Elevator();
+  //private final DriveTrain driveSubsystem = new DriveTrain();
+  //private final Elevator elSubsystem = new Elevator();
   private final Arm armSystem = new Arm();
   private final Claw clawSystem = new Claw();
-  private final Intake intakeSystem = new Intake();
+  //private final Intake intakeSystem = new Intake();
   //private ArcadeDrive arcadeDrive = new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftY());
-  //private RunElevator runElevator = new RunElevator(armSystem, clawSystem, elSubsystem, );
-  private IntakeCone intakeCone = new IntakeCone(intakeSystem);
-  private IntakeCube intakeCube = new IntakeCube(intakeSystem);
+  private RunArm runArm = new RunArm(armSystem, clawSystem, 0.35);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     initAutoBuilder();
     initializeSubsystems();
-    configureButtonBindings();
+    //configureButtonBindings();
     configureButtonBindings();
   }
 
   public void initializeSubsystems(){
-    driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
-    elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
+    //driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
+    //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
+    armSystem.setDefaultCommand(runArm);
   }
 
   private void initAutoBuilder() {
@@ -126,12 +127,17 @@ public void initializeAutoChooser(){
    */
   private void configureButtonBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    player1.rightTrigger().whileTrue(new IntakeCone(intakeSystem));
-    player1.leftTrigger().whileTrue(new IntakeCube(intakeSystem));
+    /* 
+    player1.rightTrigger(0.1).whileTrue(new IntakeCone(intakeSystem));
+    player1.leftTrigger(0.1).whileTrue(new IntakeCube(intakeSystem));
     player1.y().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.MIDDLE));
     player1.a().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.TOP));
-    
+    */
 
+    //player1.leftBumper(null)//(new RunArm(armSystem, clawSystem, 0.2));
+    //player1.pov(0).whileTrue(new RunArm(armSystem, clawSystem, 0.35));//elSubsystem, 0.1));
+    //player1.pov(180).onTrue(new RunArm(armSystem, clawSystem, -0.35));//elSubsystem, -0.1));
+    player2.a().onTrue(runArm);
     
   }
 

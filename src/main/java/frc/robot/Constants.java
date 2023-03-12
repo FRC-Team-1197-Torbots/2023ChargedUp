@@ -78,5 +78,9 @@ public final class Constants {
     public static final double BOTTOM_POSITION = 0;
     public static final double MID_POSITION = -4500;
     public static final double TOP_POSITION = -9000;
+
+    public enum STATE{
+      IDLE, INTAKE, GRAB, STORE, MIDDLE, TOP
+    }
   }
 }
