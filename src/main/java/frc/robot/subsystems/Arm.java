@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorArmConstants;
 import frc.robot.Constants.ElevatorArmConstants.STATE;
+import frc.robot.Constants.ElevatorArmConstants.TARGET;
 
 public class Arm extends SubsystemBase{
     private CANSparkMax armMotor;
@@ -14,6 +15,7 @@ public class Arm extends SubsystemBase{
     private DigitalInput armSwitch2;
     private CANSparkMax armMotor1;
     private STATE m_armState;
+    private TARGET m_armTarget;
     private boolean runArm = true;
     private double finalTarget;
     public Arm(){
@@ -34,6 +36,11 @@ public class Arm extends SubsystemBase{
     
     public void setArmRunning(boolean state){
         runArm = state;
+    }
+
+    public void setArmTarget(TARGET target){
+        m_armTarget = target;
+
     }
 
     /* 

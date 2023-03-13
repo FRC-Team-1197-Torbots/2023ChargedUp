@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorArmConstants;
 import frc.robot.Constants.ElevatorArmConstants.STATE;
+import frc.robot.Constants.ElevatorArmConstants.TARGET;
 
 public class Elevator extends SubsystemBase{
     private CANSparkMax elMotor1;
@@ -16,6 +17,7 @@ public class Elevator extends SubsystemBase{
     private DigitalInput toplimitSwitch;
     private Encoder elEncoder;
     private STATE m_Elstate;
+    private TARGET m_Eltarget;
 
     public Elevator(){
         elMotor1 = new CANSparkMax(ElevatorArmConstants.ElMotor1ID, MotorType.kBrushless);
@@ -25,8 +27,6 @@ public class Elevator extends SubsystemBase{
         elEncoder = new Encoder(0, 1);//Input correct channels later
         ResetEncoder();
     }
-    
-
 
     public void SetElevatorSpeed(double speed){
         elMotor1.set(speed);
@@ -36,6 +36,10 @@ public class Elevator extends SubsystemBase{
 
     public void setElevatorState(STATE state){
         m_Elstate = state;
+    }
+
+    public void setElevatorTarget(TARGET target){
+        m_Eltarget = target;
     }
 
     @Override

@@ -5,6 +5,7 @@ import frc.robot.RobotContainer;
 import frc.robot.Constants.ElevatorArmConstants;
 import frc.robot.Constants.ElevatorArmConstants.STATE;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -20,15 +21,21 @@ public class RunElevator extends CommandBase{
 
     private double currentPosition;
     private double targetPosition;
+    private XboxController m_player1;
     
     private STATE ElState;
+    private MoveElevator moveElevator;
+    private enum MoveElevator{
+        IDLE, ACTIVE
+    }
 
-    public RunElevator(Arm armSystem, Claw clawSystem, Elevator elevatorSystem, STATE state){
+    public RunElevator(Arm armSystem, Claw clawSystem, Elevator elevatorSystem, STATE state, XboxController player1){
         ElState = state;
         arm = armSystem;
         claw = clawSystem;
         elevator = elevatorSystem;
         elevatorPID = new PIDController(0, 0, 0);
+        m_player1 = player1;
         addRequirements(armSystem, clawSystem, elevatorSystem);
     }
     @Override
@@ -40,6 +47,20 @@ public class RunElevator extends CommandBase{
     public void execute(){
         //System.out.println("Encoder value " + elevator.GetEncoderValue());
         //System.out.println("Encoder rate " + elevator.GetEncoderRate());
+        switch(moveElevator){
+            case IDLE:
+            ElState = STATE.IDLE;
+            break;
+            case ACTIVE:
+            ElState = STATE.TOP;
+            break;
+        }
+        if(m_player1.getYButton()){
+            moveElevator = MoveElevator.ACTIVE;
+        }
+        else{
+            moveElevator = MoveElevator.IDLE;
+        }
 
         switch(ElState){
             case IDLE: 
@@ -75,7 +96,7 @@ public class RunElevator extends CommandBase{
             break;
         }
 
-            }
+    }
         
     }//-9242 is around the max encoder value when elevator is fully extended
 

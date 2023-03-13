@@ -93,5 +93,13 @@ public final class Constants {
     public enum STATE{
       IDLE, INTAKE, GRAB, STORE, MIDDLE, TOP
     }
+
+    public enum TARGET{
+      MIDDLE, TOP
+    }
+
+    public enum MoveElevatorArm{
+      IDLE, ACTIVE
+    }
   }
 }

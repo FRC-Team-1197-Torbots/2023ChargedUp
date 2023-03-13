@@ -7,6 +7,8 @@ package frc.robot;
 import frc.robot.Constants.AutoDriveConstants;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.TeleopDriveConstants;
+import frc.robot.Constants.ElevatorArmConstants.STATE;
+import frc.robot.Constants.ElevatorArmConstants.TARGET;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.DriveTrain;
@@ -42,10 +44,11 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
-import frc.robot.commands.RunArm;
+import frc.robot.commands.Arm.RunArm;
 import frc.robot.commands.Autos.TestAuto;
 import frc.robot.commands.Drive.ArcadeDrive;
 import frc.robot.commands.Elevator.RunElevator;
+import frc.robot.commands.Elevator.SetElevatorState;
 import frc.robot.commands.Intake.AutoIntakeCone;
 import frc.robot.commands.Intake.AutoIntakeCube;
 import frc.robot.commands.Intake.IntakeCone;
@@ -61,7 +64,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   public static CommandXboxController player1 = new CommandXboxController(0);
-  public static XboxController player1_HoldButton = new XboxController(0);
+  private XboxController player1_HoldButton = new XboxController(0);
   public static CommandXboxController player2 = new CommandXboxController(1);
 
   HashMap<String, Command> eventMap = new HashMap<>();
@@ -69,12 +72,12 @@ public class RobotContainer {
   private RamseteAutoBuilder m_autoBuilder;
   private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
   //private final DriveTrain driveSubsystem = new DriveTrain();
-  //private final Elevator elSubsystem = new Elevator();
+  private final Elevator elSubsystem = new Elevator();
   private final Arm armSystem = new Arm();
   private final Claw clawSystem = new Claw();
   private final Intake intakeSystem = new Intake();
   //private ArcadeDrive arcadeDrive = new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftY());
-  private RunArm runArm = new RunArm(armSystem, clawSystem, 0.35);
+  private RunArm runArm = new RunArm(armSystem, clawSystem, player1_HoldButton);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -140,7 +143,8 @@ public void initializeAutoChooser(){
     //player1.leftBumper(null)//(new RunArm(armSystem, clawSystem, 0.2));
     //player1.pov(0).whileTrue(new RunArm(armSystem, clawSystem, 0.35));//elSubsystem, 0.1));
     //player1.pov(180).onTrue(new RunArm(armSystem, clawSystem, -0.35));//elSubsystem, -0.1));
-    player2.a().onTrue(runArm);
+    player2.povUp().onTrue(new SetElevatorState(elSubsystem, TARGET.TOP));
+    player2.povDown().onTrue(new SetElevatorState(elSubsystem, TARGET.MIDDLE));
     
   }
 
