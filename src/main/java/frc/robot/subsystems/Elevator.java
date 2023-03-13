@@ -40,7 +40,7 @@ public class Elevator extends SubsystemBase{
 
     @Override
     public void periodic(){
-        SmartDashboard.putNumber("Encoder Value", GetEncoderValue());
+        SmartDashboard.putNumber("Encoder Value", GetElevatorPos());
     }
     /* 
     public boolean TopSwitch(){
@@ -50,7 +50,7 @@ public class Elevator extends SubsystemBase{
         return botlimitSwitch.get();
     }
     */
-    public double GetEncoderValue(){
+    public double GetElevatorPos(){
         return elEncoder.get();
     }
     public double GetEncoderRate(){

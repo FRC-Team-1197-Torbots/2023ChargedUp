@@ -1,8 +1,9 @@
-package frc.robot.commands;
+package frc.robot.commands.Elevator;
 
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.ElevatorArmConstants;
+import frc.robot.Constants.ElevatorArmConstants.STATE;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
@@ -18,13 +19,11 @@ public class RunElevator extends CommandBase{
     private PIDController elevatorPID;
 
     private double currentPosition;
+    private double targetPosition;
     
-    public static enum ElevatorLevel{
-        BOTTOM, MIDDLE, TOP;
-    }
-    private ElevatorLevel ElState;
+    private STATE ElState;
 
-    public RunElevator(Arm armSystem, Claw clawSystem, Elevator elevatorSystem, ElevatorLevel state){
+    public RunElevator(Arm armSystem, Claw clawSystem, Elevator elevatorSystem, STATE state){
         ElState = state;
         arm = armSystem;
         claw = clawSystem;
@@ -43,25 +42,36 @@ public class RunElevator extends CommandBase{
         //System.out.println("Encoder rate " + elevator.GetEncoderRate());
 
         switch(ElState){
-            case BOTTOM: 
-            currentPosition = elevator.GetEncoderValue();
-            elevator.SetElevatorSpeed(elevatorPID.calculate(ElevatorArmConstants.BOTTOM_POSITION - currentPosition));
+            case IDLE: 
+            targetPosition = ElevatorArmConstants.EL_IDLE_POSITION;
+            currentPosition = elevator.GetElevatorPos();
+            elevator.SetElevatorSpeed(elevatorPID.calculate(ElevatorArmConstants.EL_IDLE_POSITION - currentPosition));
             /* 
             if(elevator.TopSwitch()){
                 elevator.SetElevatorSpeed(0);}
             */
             break;
+            case INTAKE:
+            targetPosition = ElevatorArmConstants.EL_IDLE_POSITION;
+            break;
+            case GRAB:
+            targetPosition = ElevatorArmConstants.EL_IDLE_POSITION;
+            break;
+            case STORE:
+            targetPosition = ElevatorArmConstants.EL_IDLE_POSITION;
+            break;
             case MIDDLE: 
-            currentPosition = elevator.GetEncoderValue();
-            elevator.SetElevatorSpeed(elevatorPID.calculate(ElevatorArmConstants.MID_POSITION - currentPosition));
+            targetPosition = ElevatorArmConstants.EL_IDLE_POSITION;
+            currentPosition = elevator.GetElevatorPos();
+            elevator.SetElevatorSpeed(elevatorPID.calculate(ElevatorArmConstants.EL_MID_POSITION - currentPosition));
             /* 
             if(elevator.BotSwitch()){
                 elevator.SetElevatorSpeed(0);}*/
             break;
-            
             case TOP:
-            currentPosition = elevator.GetEncoderValue();
-            elevator.SetElevatorSpeed(elevatorPID.calculate(ElevatorArmConstants.TOP_POSITION - currentPosition));
+            targetPosition = ElevatorArmConstants.EL_IDLE_POSITION;
+            currentPosition = elevator.GetElevatorPos();
+            elevator.SetElevatorSpeed(elevatorPID.calculate(ElevatorArmConstants.EL_TOP_POSITION - currentPosition));
             break;
         }
 

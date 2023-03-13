@@ -41,16 +41,7 @@ public class RunArm extends CommandBase{
     public void execute(){
         //System.out.println("Encoder value " + elevator.GetEncoderValue());
         //System.out.println("Encoder rate " + elevator.GetEncoderRate());
-        if(RobotContainer.player1_HoldButton.getPOV() == 0){
-            arm.SetArmSpeed(m_speed);
-
-        }
-        else if(RobotContainer.player1_HoldButton.getPOV() == 180){
-            arm.SetArmSpeed(-m_speed);
-        }
-        else{
-            arm.SetArmSpeed(0);
-        }
+        elevator.GetElevatorPos();
 
     }
         

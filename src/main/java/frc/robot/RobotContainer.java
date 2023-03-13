@@ -43,14 +43,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
 import frc.robot.commands.RunArm;
-import frc.robot.commands.RunElevator;
 import frc.robot.commands.Autos.TestAuto;
 import frc.robot.commands.Drive.ArcadeDrive;
+import frc.robot.commands.Elevator.RunElevator;
 import frc.robot.commands.Intake.AutoIntakeCone;
 import frc.robot.commands.Intake.AutoIntakeCube;
 import frc.robot.commands.Intake.IntakeCone;
 import frc.robot.commands.Intake.IntakeCube;
-import frc.robot.commands.RunElevator.ElevatorLevel;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -73,7 +72,7 @@ public class RobotContainer {
   //private final Elevator elSubsystem = new Elevator();
   private final Arm armSystem = new Arm();
   private final Claw clawSystem = new Claw();
-  //private final Intake intakeSystem = new Intake();
+  private final Intake intakeSystem = new Intake();
   //private ArcadeDrive arcadeDrive = new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftY());
   private RunArm runArm = new RunArm(armSystem, clawSystem, 0.35);
 

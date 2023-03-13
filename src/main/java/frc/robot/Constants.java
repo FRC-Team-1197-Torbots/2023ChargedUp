@@ -75,9 +75,20 @@ public final class Constants {
     public static final int limitSwitch2Port = 1;
     public static final int armSwitch1Port = 2;
     public static final int armSwitch2Port = 3;
-    public static final double BOTTOM_POSITION = 0;
-    public static final double MID_POSITION = -4500;
-    public static final double TOP_POSITION = -9000;
+    public static final double EL_IDLE_POSITION = 0;
+    public static final double EL_INTAKE_POSITION = -4500;
+    public static final double EL_GRAB_POSITION = 0;
+    public static final double EL_STORE_POSITION = -9000;
+    public static final double EL_MID_POSITION = -4500;
+    public static final double EL_TOP_POSITION = -9000;
+
+    public static final double ARM_TOP_POSITION = 45;
+    public static final double ARM_MID_POSITION = 45;
+    public static final double ARM_IDLE_POSITION = 0;
+    public static final double ARM_STORE_POSITION = 120;
+    public static final double ARM_INTAKE_POSITION = 45;
+    public static final double ARM_GRAB_POSITION = 0;
+
 
     public enum STATE{
       IDLE, INTAKE, GRAB, STORE, MIDDLE, TOP

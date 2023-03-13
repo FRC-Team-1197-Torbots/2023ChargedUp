@@ -36,6 +36,7 @@ public class Arm extends SubsystemBase{
         runArm = state;
     }
 
+    /* 
     @Override
     public void periodic(){
         if(runArm){
@@ -56,6 +57,7 @@ public class Arm extends SubsystemBase{
         }
 
     }
+    */
 
     
 }
