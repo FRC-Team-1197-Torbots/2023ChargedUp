@@ -6,25 +6,26 @@ import com.revrobotics.ColorSensorV3;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.wpilibj.util.Color;
 public class Hopper extends SubsystemBase {
-    public static ColorSensorV3 colorsensor;
     public static DigitalInput limitSwitch;
     public static DigitalInput breakBeam;
     public static PhotonCamera hoppercam;
-
-    private final I2C.Port i2cPort = I2C.Port.kOnboard
-    ;
+    public static I2C.Port i2cPort = I2C.Port.kOnboard;
+    public Timer timer;
+    public static ColorSensorV3 colorsensor;
 
 
     public Hopper() {
 
-        colorsensor = new ColorSensorV3(i2cPort);
-        limitSwitch = new DigitalInput(4);
+        //I2C arduino = new I2C(i2cPort, 4);
         breakBeam = new DigitalInput(5);
         hoppercam = new PhotonCamera("1197HopperCam");
-        
+        colorsensor = new ColorSensorV3(i2cPort);
+
 
     }
 }
