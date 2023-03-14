@@ -66,6 +66,7 @@ public class RobotContainer {
 
   public static CommandXboxController player1 = new CommandXboxController(0);
   private XboxController player1_HoldButton = new XboxController(0);
+  private XboxController player2_HoldButton = new XboxController(1);
   public static CommandXboxController player2 = new CommandXboxController(1);
 
   HashMap<String, Command> eventMap = new HashMap<>();
@@ -161,5 +162,13 @@ public void initializeAutoChooser(){
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return m_autoChooser.getSelected();
+  }
+  public void testPeriodic(){
+    if(player2_HoldButton.getAButtonPressed()){
+      elSubsystem.SetElevatorSpeed(0.2);
+    }
+    if(player2_HoldButton.getXButtonPressed()){
+      elSubsystem.SetElevatorSpeed(-0.2);
+    }
   }
 }
