@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
@@ -81,7 +82,7 @@ public class RobotContainer {
   //private ArcadeDrive arcadeDrive = new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftY());
   private RunArm runArm = new RunArm(armSystem, clawSystem, player1_HoldButton);
   private GamePiece m_gamePiece;
-
+  
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
@@ -170,5 +171,8 @@ public void initializeAutoChooser(){
     if(player2_HoldButton.getXButtonPressed()){
       elSubsystem.SetElevatorSpeed(-0.2);
     }
+    SmartDashboard.putNumber("Encoder Value", elSubsystem.GetElevatorPos());
+    SmartDashboard.putNumber("Encoder Rate", elSubsystem.GetEncoderRate());w
+    
   }
 }
