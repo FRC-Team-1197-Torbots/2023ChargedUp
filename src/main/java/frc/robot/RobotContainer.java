@@ -6,7 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ColorSensorTest;
+import frc.robot.commands.Spindex;
 import frc.robot.commands.ArcadeDrive;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Hopper;
@@ -26,7 +26,7 @@ public class RobotContainer {
   private final DriveTrain DriveTrainSubsystem;
   private ArcadeDrive arcadeDrive;
   private Hopper hopperSubsystem;
-  private ColorSensorTest colorsensor;
+  private Spindex colorsensor;
 
   public static XboxController player1;
   public static XboxController player2;
@@ -36,7 +36,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     DriveTrainSubsystem = new DriveTrain();
     hopperSubsystem = new Hopper();
-    colorsensor = new ColorSensorTest(hopperSubsystem);
+    colorsensor = new Spindex(hopperSubsystem);
     arcadeDrive = new ArcadeDrive(DriveTrainSubsystem);
     //IntakeSubsystem = new Intake();
     //moveIntake = new MoveIntake(IntakeSubsystem);
