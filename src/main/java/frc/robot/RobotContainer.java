@@ -74,7 +74,7 @@ public class RobotContainer {
 
   private RamseteAutoBuilder m_autoBuilder;
   private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
-  //private final DriveTrain driveSubsystem = new DriveTrain();
+  private final DriveTrain driveSubsystem = new DriveTrain();
   private final Elevator elSubsystem = new Elevator();
   private final Arm armSystem = new Arm();
   private final Claw clawSystem = new Claw();
@@ -165,14 +165,21 @@ public void initializeAutoChooser(){
     return m_autoChooser.getSelected();
   }
   public void testPeriodic(){
+    if(player1_HoldButton.getAButton()){
+      driveSubsystem.SetLeft(0.2);
+      driveSubsystem.SetRight(0.2);
+    }
     if(player2_HoldButton.getAButtonPressed()){
       elSubsystem.SetElevatorSpeed(0.2);
     }
     if(player2_HoldButton.getXButtonPressed()){
       elSubsystem.SetElevatorSpeed(-0.2);
     }
+    SmartDashboard.putNumber("Drive Left Encoder", driveSubsystem.getLeftEncoder());
+    SmartDashboard.putNumber("Drive Right Encoder", driveSubsystem.getRightEncoder());
+    SmartDashboard.putNumber("Gyro Angle", driveSubsystem.getHeading());
     SmartDashboard.putNumber("Encoder Value", elSubsystem.GetElevatorPos());
-    SmartDashboard.putNumber("Encoder Rate", elSubsystem.GetEncoderRate());w
+    SmartDashboard.putNumber("Encoder Rate", elSubsystem.GetEncoderRate());
     
   }
 }
