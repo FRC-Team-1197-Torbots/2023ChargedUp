@@ -10,21 +10,33 @@ public class AutoIntakeCube extends CommandBase {
    
     //private double cubespeed;
     private double cubespeed;
-
-    public AutoIntakeCube(Intake subsystem,double percentoutput){
+    private boolean value;
+    public AutoIntakeCube(Intake subsystem,double percentoutput, boolean solenoid){
         this.intakeSystem = subsystem;
         cubespeed = percentoutput;
-
+        value = solenoid;
         addRequirements(subsystem);
 
     }
 
     @Override
     public void initialize(){
-        intakeSystem.SetSolenoid(true);
+
     }
     @Override
     public void execute(){
+        intakeSystem.SetSolenoid(value);
         intakeSystem.SetRollerSpeed(cubespeed);
+    }
+    @Override
+    public void end(boolean interrupted) {
+            
+    }
+  
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+      return false;
+  
     }
 }

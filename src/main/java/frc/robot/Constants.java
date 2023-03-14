@@ -101,5 +101,8 @@ public final class Constants {
     public enum MoveElevatorArm{
       IDLE, ACTIVE
     }
+    public enum GamePiece{
+      CONE,CUBE
+    }
   }
 }

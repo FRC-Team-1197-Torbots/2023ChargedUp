@@ -10,26 +10,27 @@ public class AutoIntakeCone extends CommandBase {
    
     //private double cubespeed;
     private double conespeed;
-
-    public AutoIntakeCone(Intake subsystem, double percentoutput){
+    private boolean value;
+    public AutoIntakeCone(Intake subsystem, double percentoutput,boolean solenoid){
         this.intakeSystem = subsystem;
         conespeed = percentoutput;
-
+        value=solenoid;
         addRequirements(subsystem);
 
     }
 
     @Override
     public void initialize(){
-        intakeSystem.SetSolenoid(true);
+
     }
     @Override
     public void execute(){
         intakeSystem.SetRollerSpeed(conespeed);
+        intakeSystem.SetSolenoid(value);
     }
     @Override
     public void end(boolean interrupted) {
-        intakeSystem.SetSolenoid(false);
+        
     }
   
     // Returns true when the command should end.

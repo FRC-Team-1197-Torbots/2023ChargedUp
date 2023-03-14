@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants.AutoDriveConstants;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.TeleopDriveConstants;
+import frc.robot.Constants.ElevatorArmConstants.GamePiece;
 import frc.robot.Constants.ElevatorArmConstants.STATE;
 import frc.robot.Constants.ElevatorArmConstants.TARGET;
 import frc.robot.subsystems.Arm;
@@ -51,8 +52,8 @@ import frc.robot.commands.Elevator.RunElevator;
 import frc.robot.commands.Elevator.SetElevatorState;
 import frc.robot.commands.Intake.AutoIntakeCone;
 import frc.robot.commands.Intake.AutoIntakeCube;
-import frc.robot.commands.Intake.IntakeCone;
-import frc.robot.commands.Intake.IntakeCube;
+import frc.robot.commands.Intake.IntakeGamePiece;
+import frc.robot.commands.Intake.SetIntakeMode;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -78,6 +79,7 @@ public class RobotContainer {
   private final Intake intakeSystem = new Intake();
   //private ArcadeDrive arcadeDrive = new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftY());
   private RunArm runArm = new RunArm(armSystem, clawSystem, player1_HoldButton);
+  private GamePiece m_gamePiece;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -96,8 +98,8 @@ public class RobotContainer {
 
   private void initAutoBuilder() {
     eventMap.put("wait", new WaitCommand(5));
-    eventMap.put("IntakeCone", new AutoIntakeCone(intakeSystem, 0.5));
-    eventMap.put("IntakeCube", new AutoIntakeCube(intakeSystem, 0.25));
+    //eventMap.put("IntakeCone", new AutoIntakeCone(intakeSystem, 0.5));
+   // eventMap.put("IntakeCube", new AutoIntakeCube(intakeSystem, 0.25));
     //Subsystem[] subArray = {DriveTrainSubsystem};
 /* 
     m_autoBuilder =
@@ -133,18 +135,21 @@ public void initializeAutoChooser(){
    */
   private void configureButtonBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    /* 
-    player1.rightTrigger(0.1).whileTrue(new IntakeCone(intakeSystem));
-    player1.leftTrigger(0.1).whileTrue(new IntakeCube(intakeSystem));
-    player1.y().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.MIDDLE));
-    player1.a().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.TOP));
-    */
+    
+    player1.rightTrigger(0.1).whileTrue(new IntakeGamePiece(intakeSystem, GamePiece.CONE));
+    //player1.y().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.MIDDLE));
+    //player1.a().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.TOP));
+    
 
     //player1.leftBumper(null)//(new RunArm(armSystem, clawSystem, 0.2));
     //player1.pov(0).whileTrue(new RunArm(armSystem, clawSystem, 0.35));//elSubsystem, 0.1));
     //player1.pov(180).onTrue(new RunArm(armSystem, clawSystem, -0.35));//elSubsystem, -0.1));
     player2.povUp().onTrue(new SetElevatorState(elSubsystem, TARGET.TOP));
     player2.povDown().onTrue(new SetElevatorState(elSubsystem, TARGET.MIDDLE));
+    player2.a().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CONE));
+    player2.y().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CUBE));
+    player1.a().onTrue(new AutoIntakeCone(intakeSystem, 0.2, true));
+
     
   }
 
