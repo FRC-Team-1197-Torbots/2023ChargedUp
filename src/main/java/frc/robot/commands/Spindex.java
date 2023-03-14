@@ -9,25 +9,16 @@ import java.net.SocketException;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import com.revrobotics.ColorMatch;
-import com.revrobotics.ColorMatchResult;
 //import com.revrobotics.ColorSensorV3.RawColor;
 
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.SerialPort;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Hopper;
 
-public class ColorSensorTest extends CommandBase {
+public class Spindex extends CommandBase {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Hopper hopperSubsystem;
-    String colorString;
-    public ColorSensorTest(Hopper subsystem) {
+    public Spindex(Hopper subsystem) {
         hopperSubsystem = subsystem;
         
         addRequirements(subsystem);
