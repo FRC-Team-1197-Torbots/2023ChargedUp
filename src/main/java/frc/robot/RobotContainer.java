@@ -180,6 +180,6 @@ public void initializeAutoChooser(){
     SmartDashboard.putNumber("Gyro Angle", driveSubsystem.getHeading());
     SmartDashboard.putNumber("Encoder Value", elSubsystem.GetElevatorPos());
     SmartDashboard.putNumber("Encoder Rate", elSubsystem.GetEncoderRate());
-    
+    //hi there
   }
 }
