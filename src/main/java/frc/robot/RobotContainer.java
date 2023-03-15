@@ -4,16 +4,57 @@
 
 package frc.robot;
 
+import frc.robot.Constants.AutoDriveConstants;
 import frc.robot.Constants.DriveTrainConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.Spindex;
-import frc.robot.commands.ArcadeDrive;
+import frc.robot.Constants.TeleopDriveConstants;
+import frc.robot.Constants.ElevatorArmConstants.GamePiece;
+import frc.robot.Constants.ElevatorArmConstants.STATE;
+import frc.robot.Constants.ElevatorArmConstants.TARGET;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.Elevator;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.RamseteAutoBuilder;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.Intake;
+import frc.robot.commands.Arm.RunArm;
+import frc.robot.commands.Autos.TestAuto;
+import frc.robot.commands.Drive.ArcadeDrive;
+import frc.robot.commands.Elevator.RunElevator;
+import frc.robot.commands.Elevator.SetElevatorState;
+import frc.robot.commands.Intake.AutoIntakeCone;
+import frc.robot.commands.Intake.AutoIntakeCube;
+import frc.robot.commands.Intake.IntakeGamePiece;
+import frc.robot.commands.Intake.SetIntakeMode;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -23,35 +64,67 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveTrain DriveTrainSubsystem;
-  private ArcadeDrive arcadeDrive;
-  private Hopper hopperSubsystem;
-  private Spindex colorsensor;
 
-  public static XboxController player1;
-  public static XboxController player2;
+  public static CommandXboxController player1 = new CommandXboxController(0);
+  private XboxController player1_HoldButton = new XboxController(0);
+  private XboxController player2_HoldButton = new XboxController(1);
+  public static CommandXboxController player2 = new CommandXboxController(1);
 
+  HashMap<String, Command> eventMap = new HashMap<>();
+
+  private RamseteAutoBuilder m_autoBuilder;
+  private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
+  private final DriveTrain driveSubsystem = new DriveTrain();
+  private final Elevator elSubsystem = new Elevator();
+  private final Arm armSystem = new Arm();
+  private final Claw clawSystem = new Claw();
+  private final Intake intakeSystem = new Intake();
+  //private ArcadeDrive arcadeDrive = new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftY());
+  private RunArm runArm = new RunArm(armSystem, clawSystem, player1_HoldButton);
+  private GamePiece m_gamePiece;
+  
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
-    DriveTrainSubsystem = new DriveTrain();
-    hopperSubsystem = new Hopper();
-    colorsensor = new Spindex(hopperSubsystem);
-    arcadeDrive = new ArcadeDrive(DriveTrainSubsystem);
-    //IntakeSubsystem = new Intake();
-    //moveIntake = new MoveIntake(IntakeSubsystem);
-
-    player1 = new XboxController(0);
-    player2 = new XboxController(1);
-
-    DriveTrainSubsystem.setDefaultCommand(arcadeDrive);
-    //IntakeSubsystem.setDefaultCommand(moveIntake);
-    hopperSubsystem.setDefaultCommand(colorsensor);
-
-    //initialize_Subsystems();
+    initAutoBuilder();
+    initializeSubsystems();
+    //configureButtonBindings();
     configureButtonBindings();
-    //configureBindings();
   }
+
+  public void initializeSubsystems(){
+    //driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
+    //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
+    armSystem.setDefaultCommand(runArm);
+  }
+
+  private void initAutoBuilder() {
+    eventMap.put("wait", new WaitCommand(5));
+    //eventMap.put("IntakeCone", new AutoIntakeCone(intakeSystem, 0.5));
+   // eventMap.put("IntakeCube", new AutoIntakeCube(intakeSystem, 0.25));
+    //Subsystem[] subArray = {DriveTrainSubsystem};
+/* 
+    m_autoBuilder =
+        new RamseteAutoBuilder(
+            DriveTrainSubsystem::getPose,
+            DriveTrainSubsystem::resetOdometry,
+            new RamseteController(AutoDriveConstants.kRamseteB, AutoDriveConstants.kRamseteZeta),
+            new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidthMeters), 
+            DriveTrainSubsystem.getFeedForward(),
+            DriveTrainSubsystem::getWheelSpeeds,
+            new PIDConstants(TeleopDriveConstants.velocitykP, TeleopDriveConstants.velocitykI, TeleopDriveConstants.velocitykD),
+            DriveTrainSubsystem::arcadeDriveVolts, 
+            eventMap, 
+            false, 
+            subArray); 
+            */
+              
+}
+
+public void initializeAutoChooser(){
+  //m_autoChooser.addOption("TestAuto", new TestAuto(m_autoBuilder, DriveTrainSubsystem));
+}
+  
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -65,6 +138,21 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     
+    player1.rightTrigger(0.1).whileTrue(new IntakeGamePiece(intakeSystem, GamePiece.CONE));
+    //player1.y().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.MIDDLE));
+    //player1.a().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.TOP));
+    
+
+    //player1.leftBumper(null)//(new RunArm(armSystem, clawSystem, 0.2));
+    //player1.pov(0).whileTrue(new RunArm(armSystem, clawSystem, 0.35));//elSubsystem, 0.1));
+    //player1.pov(180).onTrue(new RunArm(armSystem, clawSystem, -0.35));//elSubsystem, -0.1));
+    player2.povUp().onTrue(new SetElevatorState(elSubsystem, TARGET.TOP));
+    player2.povDown().onTrue(new SetElevatorState(elSubsystem, TARGET.MIDDLE));
+    player2.a().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CONE));
+    player2.y().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CUBE));
+    player1.a().onTrue(new AutoIntakeCone(intakeSystem, 0.2, true));
+
+    
   }
 
   /**
@@ -74,6 +162,24 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(DriveTrainSubsystem);
+    return m_autoChooser.getSelected();
+  }
+  public void testPeriodic(){
+    if(player1_HoldButton.getAButton()){
+      driveSubsystem.SetLeft(0.2);
+      driveSubsystem.SetRight(0.2);
+    }
+    if(player2_HoldButton.getAButtonPressed()){
+      elSubsystem.SetElevatorSpeed(0.2);
+    }
+    if(player2_HoldButton.getXButtonPressed()){
+      elSubsystem.SetElevatorSpeed(-0.2);
+    }
+    SmartDashboard.putNumber("Drive Left Encoder", driveSubsystem.getLeftEncoder());
+    SmartDashboard.putNumber("Drive Right Encoder", driveSubsystem.getRightEncoder());
+    SmartDashboard.putNumber("Gyro Angle", driveSubsystem.getHeading());
+    SmartDashboard.putNumber("Encoder Value", elSubsystem.GetElevatorPos());
+    SmartDashboard.putNumber("Encoder Rate", elSubsystem.GetEncoderRate());
+    //hi there
   }
 }

@@ -2,9 +2,12 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.Drive;
 
 import frc.robot.subsystems.DriveTrain;
+
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
@@ -14,8 +17,8 @@ import frc.robot.Constants.TeleopDriveConstants;
 public class ArcadeDrive extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final DriveTrain driveSubsystem;
-  private double throttle;
-  private double steer;
+  private DoubleSupplier m_throttle, m_steer;
+  private double throttle, steer;
   private double previousThrottle;
 
   private double leftCurrentSpeed;
@@ -37,8 +40,10 @@ public class ArcadeDrive extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ArcadeDrive(DriveTrain subsystem) {
+  public ArcadeDrive(DriveTrain subsystem, DoubleSupplier throttleInput, DoubleSupplier steerInput) {
     driveSubsystem = subsystem;
+    m_throttle = throttleInput;
+    m_steer = steerInput;
     pidDrive = new PIDController(TeleopDriveConstants.velocitykP, TeleopDriveConstants.velocitykI, TeleopDriveConstants.velocitykD);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
@@ -51,18 +56,20 @@ public void initialize() {}
 // Called every time the scheduler runs while the command is scheduled.
 @Override
 public void execute() {
+  /* 
     driveSubsystem.compressor.enableDigital();
-    if(RobotContainer.player1.getAButtonPressed() && driveSubsystem.solenoid.get()){
+    if(RobotContainer.player1.getXButtonPressed() && driveSubsystem.driveSolenoid.get()){
         driveSubsystem.shiftToLowGear();
     }
-    if(RobotContainer.player1.getYButtonPressed() && !driveSubsystem.solenoid.get()){
+    if(RobotContainer.player1.getBButtonPressed() && !driveSubsystem.driveSolenoid.get()){
         driveSubsystem.shiftToHighGear();
     }
-  throttle = -RobotContainer.player1.getRawAxis(1);
+    */
+  throttle = m_throttle.getAsDouble();
   double sign = Math.signum(throttle);
   throttle = sign * Math.pow(throttle, 2);
 
- steer = RobotContainer.player1.getRawAxis(0);
+ steer = m_steer.getAsDouble();
  sign = Math.signum(steer);
   steer = sign * Math.pow(steer, 2) * TeleopDriveConstants.STEER_SCALAR;  
 
@@ -70,7 +77,7 @@ public void execute() {
           throttle = 0;
      }
 
-     if(Math.abs(steer) < 0.025f) {
+     if(Math.abs(steer) < 0.035f) {
          steer = 0;
      }
 
@@ -176,5 +183,6 @@ public void execute() {
   @Override
   public boolean isFinished() {
     return false;
+
   }
 }
