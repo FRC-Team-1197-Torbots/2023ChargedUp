@@ -69,7 +69,6 @@ public class DriveTrain extends SubsystemBase {
 		RightBottom2 = new CANSparkMax(DriveTrainConstants.RightBottom2ID, MotorType.kBrushless);
 
     driveSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
-    compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
     leftEncoder = new Encoder(8, 9, false, Encoder.EncodingType.k4X);
 		rightEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
@@ -77,7 +76,6 @@ public class DriveTrain extends SubsystemBase {
     //rightEncoder.
     m_odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
     poseEstimator = new DifferentialDrivePoseEstimator(new DifferentialDriveKinematics(0), new Rotation2d(), getHeading(), getAverageEncoder(), getPose());
-    compressor.enableDigital();
     
     resetEncoder();
     resetGyro();

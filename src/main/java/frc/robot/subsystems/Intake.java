@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Solenoid;
 import frc.robot.Constants.IntakeHopperConstants;
+import frc.robot.Constants.ElevatorArmConstants.GamePiece;
 
 //Right Bumber cone,Left Bumber cube
 public class Intake extends SubsystemBase{
@@ -13,12 +14,16 @@ public class Intake extends SubsystemBase{
     private CANSparkMax RollerBottom;
     private CANSparkMax RollerTop;
     private Encoder IntakeEncoder;
+    private GamePiece m_gamePiece;
     public Intake(){
         //Intakeout = new Solenoid(null, 0);
         //RollerBottom = new CANSparkMax(IntakeHopperConstants.Intake1ID, MotorType.kBrushless);
         RollerTop = new CANSparkMax(IntakeHopperConstants.Intake2ID, MotorType.kBrushless);
         //IntakeEncoder = new Encoder(0, 0);
         //IntakeEncoder.reset();
+    }
+    public void setGamePiece(GamePiece gamePiece){
+        m_gamePiece = gamePiece;
     }
     /* 
     public double GetEncoderValue(){
