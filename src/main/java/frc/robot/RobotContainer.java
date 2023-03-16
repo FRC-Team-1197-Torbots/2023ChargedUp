@@ -14,6 +14,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Hopper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -46,17 +47,17 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Pneumatics;
 import frc.robot.commands.Arm.RunArm;
 import frc.robot.commands.Autos.TestAuto;
 import frc.robot.commands.Drive.ArcadeDrive;
 import frc.robot.commands.Elevator.RunElevator;
 import frc.robot.commands.Elevator.SetElevatorState;
+import frc.robot.commands.Hopper.Spindex;
 import frc.robot.commands.Intake.AutoIntakeCone;
 import frc.robot.commands.Intake.AutoIntakeCube;
 import frc.robot.commands.Intake.IntakeGamePiece;
 import frc.robot.commands.Intake.SetIntakeMode;
-import frc.robot.commands.Pneumatics.RunCompressor;
+import frc.robot.commands.Drive.SetLED;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -81,7 +82,7 @@ public class RobotContainer {
   private final Arm armSystem = new Arm();
   private final Claw clawSystem = new Claw();
   private final Intake intakeSystem = new Intake();
-  private final Pneumatics pneumaticsSystem = new Pneumatics();
+  private final Hopper hopperSystem = new Hopper();
   //private ArcadeDrive arcadeDrive = new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftY());
   private RunArm runArm = new RunArm(armSystem, clawSystem, player1_HoldButton);
   private GamePiece m_gamePiece;
@@ -91,13 +92,12 @@ public class RobotContainer {
     // Configure the trigger bindings
     initAutoBuilder();
     initializeSubsystems();
+    //configureButtonBindings();
     configureButtonBindings();
   }
 
   public void initializeSubsystems(){
-    System.out.println("subsytem enabled");
-    driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
-    pneumaticsSystem.setDefaultCommand(new RunCompressor(pneumaticsSystem));
+    //driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
     //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
     armSystem.setDefaultCommand(runArm);
   }
@@ -106,22 +106,22 @@ public class RobotContainer {
     eventMap.put("wait", new WaitCommand(5));
     //eventMap.put("IntakeCone", new AutoIntakeCone(intakeSystem, 0.5));
    // eventMap.put("IntakeCube", new AutoIntakeCube(intakeSystem, 0.25));
-    Subsystem[] subArray = {driveSubsystem};
-
+    //Subsystem[] subArray = {DriveTrainSubsystem};
+/* 
     m_autoBuilder =
         new RamseteAutoBuilder(
-            driveSubsystem::getPose,
-            driveSubsystem::resetOdometry,
+            DriveTrainSubsystem::getPose,
+            DriveTrainSubsystem::resetOdometry,
             new RamseteController(AutoDriveConstants.kRamseteB, AutoDriveConstants.kRamseteZeta),
             new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidthMeters), 
-            driveSubsystem.getFeedForward(),
-            driveSubsystem::getWheelSpeeds,
+            DriveTrainSubsystem.getFeedForward(),
+            DriveTrainSubsystem::getWheelSpeeds,
             new PIDConstants(TeleopDriveConstants.velocitykP, TeleopDriveConstants.velocitykI, TeleopDriveConstants.velocitykD),
-            driveSubsystem::arcadeDriveVolts, 
+            DriveTrainSubsystem::arcadeDriveVolts, 
             eventMap, 
             false, 
             subArray); 
-            
+            */
               
 }
 
@@ -152,9 +152,12 @@ public void initializeAutoChooser(){
     //player1.pov(180).onTrue(new RunArm(armSystem, clawSystem, -0.35));//elSubsystem, -0.1));
     player2.povUp().onTrue(new SetElevatorState(elSubsystem, TARGET.TOP));
     player2.povDown().onTrue(new SetElevatorState(elSubsystem, TARGET.MIDDLE));
-    player2.y().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CONE));
-    player2.x().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CUBE));
-    //player1.a().onTrue(new AutoIntakeCone(intakeSystem, 0.2, true));
+    player2.a().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CONE));
+    player2.y().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CUBE));
+    player2.a().onTrue(new SetLED(1)); //cone
+    player2.a().onTrue(new Spindex(hopperSystem));
+    player2.y().onTrue(new SetLED(2)); //cube
+    player1.a().onTrue(new AutoIntakeCone(intakeSystem, 0.2, true));
 
     
   }
@@ -169,32 +172,21 @@ public void initializeAutoChooser(){
     return m_autoChooser.getSelected();
   }
   public void testPeriodic(){
-    if(player1_HoldButton.getAButton()){// A1 drive forward
+    if(player1_HoldButton.getAButton()){
       driveSubsystem.SetLeft(0.2);
       driveSubsystem.SetRight(0.2);
     }
-    if(player1_HoldButton.getBButtonPressed()){//B1 drive backwards
-      driveSubsystem.SetLeft(0.2);
-      driveSubsystem.SetRight(0.2);
-    }
-    if(player1_HoldButton.getXButtonPressed()){//X1 Arm up
-      armSystem.SetArmSpeed(0.2);
-    }
-    if(player1_HoldButton.getYButtonPressed()){//Y1 Arm down
-      armSystem.SetArmSpeed(-0.2);
-    }    
-    if(player2_HoldButton.getAButtonPressed()){//A2 Elevator Up
+    if(player2_HoldButton.getAButtonPressed()){
       elSubsystem.SetElevatorSpeed(0.2);
     }
-    if(player2_HoldButton.getXButtonPressed()){//X2 Elevator Down
+    if(player2_HoldButton.getXButtonPressed()){
       elSubsystem.SetElevatorSpeed(-0.2);
     }
-
     SmartDashboard.putNumber("Drive Left Encoder", driveSubsystem.getLeftEncoder());
     SmartDashboard.putNumber("Drive Right Encoder", driveSubsystem.getRightEncoder());
     SmartDashboard.putNumber("Gyro Angle", driveSubsystem.getHeading());
-    //SmartDashboard.putNumber("Encoder Value", elSubsystem.GetElevatorPos());
-    //SmartDashboard.putNumber("Encoder Rate", elSubsystem.GetEncoderRate());
-    //hi there
+    SmartDashboard.putNumber("Encoder Value", elSubsystem.GetElevatorPos());
+    SmartDashboard.putNumber("Encoder Rate", elSubsystem.GetEncoderRate());
+
   }
 }
