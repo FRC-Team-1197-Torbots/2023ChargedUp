@@ -46,6 +46,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Pneumatics;
 import frc.robot.commands.Arm.RunArm;
 import frc.robot.commands.Autos.TestAuto;
 import frc.robot.commands.Drive.ArcadeDrive;
@@ -55,6 +56,7 @@ import frc.robot.commands.Intake.AutoIntakeCone;
 import frc.robot.commands.Intake.AutoIntakeCube;
 import frc.robot.commands.Intake.IntakeGamePiece;
 import frc.robot.commands.Intake.SetIntakeMode;
+import frc.robot.commands.Pneumatics.RunCompressor;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -79,6 +81,7 @@ public class RobotContainer {
   private final Arm armSystem = new Arm();
   private final Claw clawSystem = new Claw();
   private final Intake intakeSystem = new Intake();
+  private final Pneumatics pneumaticsSystem = new Pneumatics();
   //private ArcadeDrive arcadeDrive = new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftY());
   private RunArm runArm = new RunArm(armSystem, clawSystem, player1_HoldButton);
   private GamePiece m_gamePiece;
@@ -88,13 +91,13 @@ public class RobotContainer {
     // Configure the trigger bindings
     initAutoBuilder();
     initializeSubsystems();
-    //configureButtonBindings();
     configureButtonBindings();
   }
 
   public void initializeSubsystems(){
     System.out.println("subsytem enabled");
     driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
+    pneumaticsSystem.setDefaultCommand(new RunCompressor(pneumaticsSystem));
     //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
     armSystem.setDefaultCommand(runArm);
   }
@@ -103,22 +106,22 @@ public class RobotContainer {
     eventMap.put("wait", new WaitCommand(5));
     //eventMap.put("IntakeCone", new AutoIntakeCone(intakeSystem, 0.5));
    // eventMap.put("IntakeCube", new AutoIntakeCube(intakeSystem, 0.25));
-    //Subsystem[] subArray = {DriveTrainSubsystem};
-/* 
+    Subsystem[] subArray = {driveSubsystem};
+
     m_autoBuilder =
         new RamseteAutoBuilder(
-            DriveTrainSubsystem::getPose,
-            DriveTrainSubsystem::resetOdometry,
+            driveSubsystem::getPose,
+            driveSubsystem::resetOdometry,
             new RamseteController(AutoDriveConstants.kRamseteB, AutoDriveConstants.kRamseteZeta),
             new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidthMeters), 
-            DriveTrainSubsystem.getFeedForward(),
-            DriveTrainSubsystem::getWheelSpeeds,
+            driveSubsystem.getFeedForward(),
+            driveSubsystem::getWheelSpeeds,
             new PIDConstants(TeleopDriveConstants.velocitykP, TeleopDriveConstants.velocitykI, TeleopDriveConstants.velocitykD),
-            DriveTrainSubsystem::arcadeDriveVolts, 
+            driveSubsystem::arcadeDriveVolts, 
             eventMap, 
             false, 
             subArray); 
-            */
+            
               
 }
 
@@ -149,9 +152,9 @@ public void initializeAutoChooser(){
     //player1.pov(180).onTrue(new RunArm(armSystem, clawSystem, -0.35));//elSubsystem, -0.1));
     player2.povUp().onTrue(new SetElevatorState(elSubsystem, TARGET.TOP));
     player2.povDown().onTrue(new SetElevatorState(elSubsystem, TARGET.MIDDLE));
-    player2.a().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CONE));
-    player2.y().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CUBE));
-    player1.a().onTrue(new AutoIntakeCone(intakeSystem, 0.2, true));
+    player2.y().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CONE));
+    player2.x().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CUBE));
+    //player1.a().onTrue(new AutoIntakeCone(intakeSystem, 0.2, true));
 
     
   }
