@@ -93,7 +93,8 @@ public class RobotContainer {
   }
 
   public void initializeSubsystems(){
-    //driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
+    System.out.println("subsytem enabled");
+    driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
     //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
     armSystem.setDefaultCommand(runArm);
   }
@@ -165,21 +166,32 @@ public void initializeAutoChooser(){
     return m_autoChooser.getSelected();
   }
   public void testPeriodic(){
-    if(player1_HoldButton.getAButton()){
+    if(player1_HoldButton.getAButton()){// A1 drive forward
       driveSubsystem.SetLeft(0.2);
       driveSubsystem.SetRight(0.2);
     }
-    if(player2_HoldButton.getAButtonPressed()){
+    if(player1_HoldButton.getBButtonPressed()){//B1 drive backwards
+      driveSubsystem.SetLeft(0.2);
+      driveSubsystem.SetRight(0.2);
+    }
+    if(player1_HoldButton.getXButtonPressed()){//X1 Arm up
+      armSystem.SetArmSpeed(0.2);
+    }
+    if(player1_HoldButton.getYButtonPressed()){//Y1 Arm down
+      armSystem.SetArmSpeed(-0.2);
+    }    
+    if(player2_HoldButton.getAButtonPressed()){//A2 Elevator Up
       elSubsystem.SetElevatorSpeed(0.2);
     }
-    if(player2_HoldButton.getXButtonPressed()){
+    if(player2_HoldButton.getXButtonPressed()){//X2 Elevator Down
       elSubsystem.SetElevatorSpeed(-0.2);
     }
+
     SmartDashboard.putNumber("Drive Left Encoder", driveSubsystem.getLeftEncoder());
     SmartDashboard.putNumber("Drive Right Encoder", driveSubsystem.getRightEncoder());
     SmartDashboard.putNumber("Gyro Angle", driveSubsystem.getHeading());
-    SmartDashboard.putNumber("Encoder Value", elSubsystem.GetElevatorPos());
-    SmartDashboard.putNumber("Encoder Rate", elSubsystem.GetEncoderRate());
+    //SmartDashboard.putNumber("Encoder Value", elSubsystem.GetElevatorPos());
+    //SmartDashboard.putNumber("Encoder Rate", elSubsystem.GetEncoderRate());
     //hi there
   }
 }

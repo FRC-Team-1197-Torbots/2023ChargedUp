@@ -24,8 +24,8 @@ public class Elevator extends SubsystemBase{
         elMotor2 = new CANSparkMax(ElevatorArmConstants.ElMotor2ID, MotorType.kBrushless);
         //botlimitSwitch = new DigitalInput(ElevatorArmConstants.limitSwitch1Port);
         //toplimitSwitch = new DigitalInput(ElevatorArmConstants.limitSwitch2Port);
-        elEncoder = new Encoder(0, 1);//Input correct channels later
-        ResetEncoder();
+        //elEncoder = new Encoder(0, 1);//Input correct channels later
+        //ResetEncoder();
     }
 
     public void SetElevatorSpeed(double speed){
@@ -44,7 +44,7 @@ public class Elevator extends SubsystemBase{
 
     @Override
     public void periodic(){
-        SmartDashboard.putNumber("Encoder Value", GetElevatorPos());
+        //SmartDashboard.putNumber("Encoder Value", GetElevatorPos());
     }
     /* 
     public boolean TopSwitch(){
@@ -53,7 +53,7 @@ public class Elevator extends SubsystemBase{
     public boolean BotSwitch(){
         return botlimitSwitch.get();
     }
-    */
+    
     public double GetElevatorPos(){
         return elEncoder.get();
     }
@@ -63,7 +63,7 @@ public class Elevator extends SubsystemBase{
     public void ResetEncoder(){
         elEncoder.reset();
     }
-
+ */
 
 
 }

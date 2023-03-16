@@ -71,13 +71,14 @@ public class DriveTrain extends SubsystemBase {
     driveSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
     compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
-    leftEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
-		rightEncoder = new Encoder(2, 3, false, Encoder.EncodingType.k4X);
+    leftEncoder = new Encoder(8, 9, false, Encoder.EncodingType.k4X);
+		rightEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
 
     //rightEncoder.
     m_odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
     poseEstimator = new DifferentialDrivePoseEstimator(new DifferentialDriveKinematics(0), new Rotation2d(), getHeading(), getAverageEncoder(), getPose());
-
+    compressor.enableDigital();
+    
     resetEncoder();
     resetGyro();
 
@@ -191,6 +192,8 @@ public class DriveTrain extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    //System.out.println("Signal");
+    
     m_odometry.update(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
 
     SmartDashboard.putNumber("Left Encoder Value Meters: ", getLeftEncoder());

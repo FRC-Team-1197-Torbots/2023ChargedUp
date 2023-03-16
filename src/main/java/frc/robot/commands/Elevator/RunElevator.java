@@ -40,7 +40,7 @@ public class RunElevator extends CommandBase{
     }
     @Override
     public void initialize() {
-        elevator.ResetEncoder();
+        //elevator.ResetEncoder();
     }
     @Override
     
@@ -65,7 +65,7 @@ public class RunElevator extends CommandBase{
         switch(ElState){
             case IDLE: 
             targetPosition = ElevatorArmConstants.EL_IDLE_POSITION;
-            currentPosition = elevator.GetElevatorPos();
+            //currentPosition = elevator.GetElevatorPos();
             elevator.SetElevatorSpeed(elevatorPID.calculate(ElevatorArmConstants.EL_IDLE_POSITION - currentPosition));
             /* 
             if(elevator.TopSwitch()){
@@ -83,7 +83,7 @@ public class RunElevator extends CommandBase{
             break;
             case MIDDLE: 
             targetPosition = ElevatorArmConstants.EL_IDLE_POSITION;
-            currentPosition = elevator.GetElevatorPos();
+            //currentPosition = elevator.GetElevatorPos();
             elevator.SetElevatorSpeed(elevatorPID.calculate(ElevatorArmConstants.EL_MID_POSITION - currentPosition));
             /* 
             if(elevator.BotSwitch()){
@@ -91,7 +91,7 @@ public class RunElevator extends CommandBase{
             break;
             case TOP:
             targetPosition = ElevatorArmConstants.EL_IDLE_POSITION;
-            currentPosition = elevator.GetElevatorPos();
+            //currentPosition = elevator.GetElevatorPos();
             elevator.SetElevatorSpeed(elevatorPID.calculate(ElevatorArmConstants.EL_TOP_POSITION - currentPosition));
             break;
         }
