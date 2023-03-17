@@ -82,6 +82,7 @@ public class RobotContainer {
   private final Claw clawSystem = new Claw();
   private final Intake intakeSystem = new Intake();
   private final Pneumatics pneumaticsSystem = new Pneumatics();
+  private RunCompressor runCompressor = new RunCompressor(pneumaticsSystem);
   //private ArcadeDrive arcadeDrive = new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftY());
   private RunArm runArm = new RunArm(armSystem, clawSystem, player1_HoldButton);
   private GamePiece m_gamePiece;
@@ -92,14 +93,15 @@ public class RobotContainer {
     initAutoBuilder();
     initializeSubsystems();
     configureButtonBindings();
+    System.out.println("RobotContainer Initialized");
   }
 
   public void initializeSubsystems(){
-    System.out.println("subsytem enabled");
-    driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
-    pneumaticsSystem.setDefaultCommand(new RunCompressor(pneumaticsSystem));
+    System.out.println("Pneumatic System initialized");
+    //driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
+    pneumaticsSystem.setDefaultCommand(runCompressor);
     //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
-    armSystem.setDefaultCommand(runArm);
+    //armSystem.setDefaultCommand(runArm);
   }
 
   private void initAutoBuilder() {
@@ -150,6 +152,7 @@ public void initializeAutoChooser(){
     //player1.leftBumper(null)//(new RunArm(armSystem, clawSystem, 0.2));
     //player1.pov(0).whileTrue(new RunArm(armSystem, clawSystem, 0.35));//elSubsystem, 0.1));
     //player1.pov(180).onTrue(new RunArm(armSystem, clawSystem, -0.35));//elSubsystem, -0.1));
+    player1.b().onTrue(new RunCompressor(pneumaticsSystem));
     player2.povUp().onTrue(new SetElevatorState(elSubsystem, TARGET.TOP));
     player2.povDown().onTrue(new SetElevatorState(elSubsystem, TARGET.MIDDLE));
     player2.y().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CONE));
@@ -177,18 +180,22 @@ public void initializeAutoChooser(){
       driveSubsystem.SetLeft(0.2);
       driveSubsystem.SetRight(0.2);
     }
+    /* 
     if(player1_HoldButton.getXButtonPressed()){//X1 Arm up
       armSystem.SetArmSpeed(0.2);
     }
     if(player1_HoldButton.getYButtonPressed()){//Y1 Arm down
       armSystem.SetArmSpeed(-0.2);
-    }    
+    }  
+    */  
     if(player2_HoldButton.getAButtonPressed()){//A2 Elevator Up
       elSubsystem.SetElevatorSpeed(0.2);
     }
     if(player2_HoldButton.getXButtonPressed()){//X2 Elevator Down
       elSubsystem.SetElevatorSpeed(-0.2);
     }
+
+
 
     SmartDashboard.putNumber("Drive Left Encoder", driveSubsystem.getLeftEncoder());
     SmartDashboard.putNumber("Drive Right Encoder", driveSubsystem.getRightEncoder());

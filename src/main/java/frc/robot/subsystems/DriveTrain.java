@@ -217,7 +217,7 @@ public class DriveTrain extends SubsystemBase {
 	}
 
   public void SetLeft(double speed) {
-		LeftTop.set(-speed);
+		LeftTop.set(speed);
 		LeftBottom1.set(speed);
 		LeftBottom2.set(speed);
 	}
