@@ -57,7 +57,7 @@ public class Spindex extends CommandBase {
 
         hopperSubsystem.hoppercam.setPipelineIndex(0);
 
-        byte[] ledsignal = {0x00}; //
+        //byte[] ledsignal = {0x00}; //
 
         //get what limelight sees. if a target is detected, it's a cone
         var camresult = hopperSubsystem.hoppercam.getLatestResult();
@@ -66,12 +66,12 @@ public class Spindex extends CommandBase {
           double skew = camtarget.getSkew();
           SmartDashboard.putNumber("skew", skew);
           SmartDashboard.putString("status","Cone found, rotate " + -skew + " degrees");
-          ledsignal[0] = 0x01;
+          //ledsignal[0] = 0x01;
         }
         // if no target from limelight but breakbeam sees something, it's a cube
         else if(hopperSubsystem.breakBeam.get()){
             SmartDashboard.putString("status","Cube found");
-            ledsignal[0] = 0x02;
+            //ledsignal[0] = 0x02;
         }
         else{
           SmartDashboard.putString("status", "No object found");
@@ -152,18 +152,17 @@ public class Spindex extends CommandBase {
 */
     SmartDashboard.putBoolean("Breakbeam",hopperSubsystem.breakBeam.get());
 
-    int SERVICE_PORT = 8888;
-
+    //int SERVICE_PORT = 8888;
+/*
     try{
-      /* Instantiate client socket. 
-      No need to bind to a specific port */
+      
       DatagramSocket clientSocket = new DatagramSocket();
       
       // Get the IP address of the server
       InetAddress IPAddress = InetAddress.getByName("10.11.97.77");
       
       // Creating a UDP packet 
-      DatagramPacket sendingPacket = new DatagramPacket(ledsignal,ledsignal.length,IPAddress, SERVICE_PORT);
+      //DatagramPacket sendingPacket = new DatagramPacket(ledsignal,ledsignal.length,IPAddress, SERVICE_PORT);
       
       // sending UDP packet to the server
       clientSocket.send(sendingPacket);
@@ -174,7 +173,7 @@ public class Spindex extends CommandBase {
       catch(IOException e) {
       e.printStackTrace();
     }
-
+*/
     //SmartDashboard.putString("Object", colorString);
     }
 

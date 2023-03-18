@@ -3,11 +3,13 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorArmConstants;
 import frc.robot.Constants.ElevatorArmConstants.STATE;
 import frc.robot.Constants.ElevatorArmConstants.TARGET;
+import com.revrobotics.AnalogInput;
 
 public class Arm extends SubsystemBase{
     private CANSparkMax armMotor;
@@ -18,17 +20,18 @@ public class Arm extends SubsystemBase{
     private TARGET m_armTarget;
     private boolean runArm = true;
     private double finalTarget;
+    private AnalogPotentiometer armPot;
     public Arm(){
         //armMotor = new CANSparkMax(ElevatorArmConstants.ArmID, MotorType.kBrushless);
         armSwitch1 = new DigitalInput(ElevatorArmConstants.armSwitch1Port);
         armSwitch2 = new DigitalInput(ElevatorArmConstants.armSwitch2Port);
         armMotor1 = new CANSparkMax(ElevatorArmConstants.ArmID, MotorType.kBrushless);
+        armPot = new AnalogPotentiometer(0);
     }
-
+    /*
     public void SetArmState(STATE state){
         m_armState = state;
-    }
-
+    }*/
     public void SetArmSpeed(double speed){
         armMotor1.set(speed);
 
@@ -42,6 +45,10 @@ public class Arm extends SubsystemBase{
         m_armTarget = target;
 
     }
+    public double GetPotValue(){
+        return armPot.get();
+    }
+    
 
     /* 
     @Override

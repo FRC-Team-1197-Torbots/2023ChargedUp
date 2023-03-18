@@ -2,7 +2,7 @@ package frc.robot.commands.Elevator;
 
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.ElevatorArmConstants;
+import frc.robot.Constants;
 import frc.robot.Constants.ElevatorArmConstants.STATE;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.XboxController;
@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
+
 
 public class RunElevator extends CommandBase{
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -23,19 +24,24 @@ public class RunElevator extends CommandBase{
     private double targetPosition;
     private XboxController m_player1;
     
-    private STATE ElState;
-    private MoveElevator moveElevator;
-    private enum MoveElevator{
+    //private STATE ElState;
+    //private MoveElevator moveElevator;
+    /*private enum MoveElevator{
         IDLE, ACTIVE
+    }*/
+    
+    public static enum ElevatorState{
+        UP,DOWN,IDLE
     }
+    private ElevatorState ElState;
 
-    public RunElevator(Arm armSystem, Claw clawSystem, Elevator elevatorSystem, STATE state, XboxController player1){
-        ElState = state;
+    public RunElevator(Arm armSystem, Claw clawSystem, Elevator elevatorSystem){
+        ElState = ElevatorState.IDLE;
         arm = armSystem;
         claw = clawSystem;
         elevator = elevatorSystem;
         elevatorPID = new PIDController(0, 0, 0);
-        m_player1 = player1;
+        //m_player1 = player1;
         addRequirements(armSystem, clawSystem, elevatorSystem);
     }
     @Override
@@ -45,9 +51,34 @@ public class RunElevator extends CommandBase{
     @Override
     
     public void execute(){
+        if(RobotContainer.player1_HoldButton.getYButtonPressed()){
+            ElState = ElevatorState.UP;
+        }
+        else if(RobotContainer.player2_HoldButton.getAButtonPressed()){
+            ElState = ElevatorState.DOWN;
+        }
+        else{
+            ElState = ElevatorState.IDLE;
+        }
+
+        switch(ElState){
+            case UP: 
+            elevator.SetElevatorSpeed(0.2);
+            //if(elevator.TopSwitch()){
+            //    elevator.SetElevatorSpeed(0);}
+            break;
+            case DOWN: 
+            elevator.SetElevatorSpeed(-0.2);
+            //if(elevator.BotSwitch()){
+            //    elevator.SetElevatorSpeed(0);}
+            break;
+            case IDLE:
+            elevator.SetElevatorSpeed(0);
+            break;
+        }
         //System.out.println("Encoder value " + elevator.GetEncoderValue());
         //System.out.println("Encoder rate " + elevator.GetEncoderRate());
-        switch(moveElevator){
+        /*switch(moveElevator){
             case IDLE:
             ElState = STATE.IDLE;
             break;
@@ -70,7 +101,7 @@ public class RunElevator extends CommandBase{
             /* 
             if(elevator.TopSwitch()){
                 elevator.SetElevatorSpeed(0);}
-            */
+            
             break;
             case INTAKE:
             targetPosition = ElevatorArmConstants.EL_IDLE_POSITION;
@@ -87,14 +118,14 @@ public class RunElevator extends CommandBase{
             elevator.SetElevatorSpeed(elevatorPID.calculate(ElevatorArmConstants.EL_MID_POSITION - currentPosition));
             /* 
             if(elevator.BotSwitch()){
-                elevator.SetElevatorSpeed(0);}*/
+                elevator.SetElevatorSpeed(0);}
             break;
             case TOP:
             targetPosition = ElevatorArmConstants.EL_IDLE_POSITION;
             //currentPosition = elevator.GetElevatorPos();
             elevator.SetElevatorSpeed(elevatorPID.calculate(ElevatorArmConstants.EL_TOP_POSITION - currentPosition));
             break;
-        }
+        }*/
 
     }
         

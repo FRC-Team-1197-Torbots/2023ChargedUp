@@ -33,6 +33,6 @@ public class AutoRunElevator extends CommandBase {
     }
     @Override
     public boolean isFinished(){
-        return (Math.abs(m_Elevator.GetElevatorPos() - m_targetPoint)<35);
+        return (Math.abs(m_Elevator.GetElevatorPos() - m_targetPoint) < 35);
     }
 }

@@ -47,14 +47,15 @@ public class DriveTrain extends SubsystemBase {
   public static Encoder leftEncoder;
   public static Encoder rightEncoder;
 
-  private final DifferentialDriveOdometry m_odometry;
+  //private final DifferentialDriveOdometry m_odometry;
 
   private AHRS gyro;
 
-  private final DifferentialDrivePoseEstimator poseEstimator;
+  /*private final DifferentialDrivePoseEstimator poseEstimator;
   private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(AutoDriveConstants.ksVolts, 
   AutoDriveConstants.kVoltSecondPerMeter, 
   AutoDriveConstants.kVoltSecondSquaredPerMeter);
+  */
 
   /** Creates a new ExampleSubsystem. */
   public DriveTrain() {
@@ -74,13 +75,13 @@ public class DriveTrain extends SubsystemBase {
 		rightEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
 
     //rightEncoder.
-    m_odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
-    poseEstimator = new DifferentialDrivePoseEstimator(new DifferentialDriveKinematics(0), new Rotation2d(), getHeading(), getAverageEncoder(), getPose());
+    //m_odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
+    //poseEstimator = new DifferentialDrivePoseEstimator(new DifferentialDriveKinematics(0), new Rotation2d(), getHeading(), getAverageEncoder(), getPose());
     
     resetEncoder();
     resetGyro();
 
-    m_odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), new Pose2d());
+    //m_odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), new Pose2d());
   }
 
   /**
@@ -144,7 +145,7 @@ public class DriveTrain extends SubsystemBase {
   public double getTurnRate(){
     return -gyro.getRate();
   }
-
+/* 
   public Pose2d getPose(){
     return m_odometry.getPoseMeters();
   }
@@ -184,7 +185,7 @@ public class DriveTrain extends SubsystemBase {
     LeftBottom1.setVoltage(rightVolts);
     LeftBottom2.setVoltage(rightVolts);
   }
-
+*/
   
 
   @Override
@@ -192,7 +193,7 @@ public class DriveTrain extends SubsystemBase {
     // This method will be called once per scheduler run
     //System.out.println("Signal");
     
-    m_odometry.update(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
+    //m_odometry.update(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
 
     SmartDashboard.putNumber("Left Encoder Value Meters: ", getLeftEncoder());
     SmartDashboard.putNumber("Right Encoder Value Meters", getRightEncoder());

@@ -9,6 +9,7 @@ import frc.robot.subsystems.DriveTrain;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.TeleopDriveConstants;
@@ -17,7 +18,7 @@ import frc.robot.Constants.TeleopDriveConstants;
 public class ArcadeDrive extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final DriveTrain driveSubsystem;
-  private DoubleSupplier m_throttle, m_steer;
+  private XboxController m_player1;
   private double throttle, steer;
   private double previousThrottle;
 
@@ -40,11 +41,10 @@ public class ArcadeDrive extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ArcadeDrive(DriveTrain subsystem, DoubleSupplier throttleInput, DoubleSupplier steerInput) {
+  public ArcadeDrive(DriveTrain subsystem, XboxController player1) {
     driveSubsystem = subsystem;
-    m_throttle = throttleInput;
-    m_steer = steerInput;
     pidDrive = new PIDController(TeleopDriveConstants.velocitykP, TeleopDriveConstants.velocitykI, TeleopDriveConstants.velocitykD);
+    m_player1 = player1;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }
@@ -66,11 +66,11 @@ public void execute() {
         driveSubsystem.shiftToHighGear();
     }
     */
-  throttle = m_throttle.getAsDouble();
+  throttle = 0.6 * m_player1.getLeftY();
   double sign = Math.signum(throttle);
   throttle = sign * Math.pow(throttle, 2);
 
- steer = m_steer.getAsDouble();
+ steer = 0.6 * m_player1.getLeftX();
  sign = Math.signum(steer);
   steer = sign * Math.pow(steer, 2) * TeleopDriveConstants.STEER_SCALAR;  
 

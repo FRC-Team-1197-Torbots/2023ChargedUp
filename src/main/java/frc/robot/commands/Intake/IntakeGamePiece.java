@@ -22,15 +22,14 @@ public class IntakeGamePiece extends CommandBase {
 
     @Override
     public void initialize(){
-        intakeSystem.SetSolenoid(true);
+        //intakeSystem.SetSolenoid(true);
     }
     @Override
     public void execute(){
-        if(m_gamePiece == GamePiece.CONE){
-        intakeSystem.SetRollerSpeed(conespeed);}
-        else{
-        intakeSystem.SetRollerSpeed(cubespeed);
+        if(RobotContainer.player1_HoldButton.getRightBumperPressed()){
+        intakeSystem.SetRollerSpeed(0.2);}
+        //else{
+        //intakeSystem.SetRollerSpeed(cubespeed);
         
         }
     }
-}

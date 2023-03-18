@@ -103,8 +103,11 @@ public final class Constants {
       MIDDLE, TOP
     }
 
-    public enum MoveElevatorArm{
+    /*public enum MoveElevatorArm{
       IDLE, ACTIVE
+    }*/
+    public enum ELSTATE{
+      UP, DOWN, IDLE
     }
     public enum GamePiece{
       CONE,CUBE

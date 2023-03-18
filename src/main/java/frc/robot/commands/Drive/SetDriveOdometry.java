@@ -18,10 +18,11 @@ public class SetDriveOdometry extends CommandBase{
 
     @Override
     public void initialize(){
-        m_DriveTrain.setOdometry(m_Pose2d);
+        /*m_DriveTrain.setOdometry(m_Pose2d);
         SmartDashboard.putNumber("DriveInitialPositionX", m_Pose2d.getX());
         SmartDashboard.putNumber("DriveInitialPositionY", m_Pose2d.getY());
         SmartDashboard.putNumber("DriveInitialPositionRotation", m_Pose2d.getRotation().getDegrees());
+        */
     }
 
     @Override
