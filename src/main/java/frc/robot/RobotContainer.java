@@ -49,6 +49,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.commands.Arm.RunArm;
 import frc.robot.commands.Autos.TestAuto;
+import frc.robot.commands.Claw.RunClaw;
 import frc.robot.commands.Drive.ArcadeDrive;
 import frc.robot.commands.Elevator.RunElevator;
 import frc.robot.commands.Elevator.SetElevatorState;
@@ -93,13 +94,13 @@ public class RobotContainer {
     initAutoBuilder();
     initializeSubsystems();
     configureButtonBindings();
-    System.out.println("RobotContainer Initialized");
+    //System.out.println("RobotContainer Initialized");
   }
 
   public void initializeSubsystems(){
-    System.out.println("Pneumatic System initialized");
+    //System.out.println("Pneumatic System initialized");
     //driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
-    pneumaticsSystem.setDefaultCommand(runCompressor);
+    //pneumaticsSystem.setDefaultCommand(runCompressor);
     //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
     //armSystem.setDefaultCommand(runArm);
   }
@@ -145,6 +146,7 @@ public void initializeAutoChooser(){
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     
     player1.rightTrigger(0.1).whileTrue(new IntakeGamePiece(intakeSystem, GamePiece.CONE));
+    player1.a().onTrue(new RunClaw(clawSystem));
     //player1.y().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.MIDDLE));
     //player1.a().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.TOP));
     
@@ -180,19 +182,41 @@ public void initializeAutoChooser(){
       driveSubsystem.SetLeft(0.2);
       driveSubsystem.SetRight(0.2);
     }
-    /* 
-    if(player1_HoldButton.getXButtonPressed()){//X1 Arm up
+    
+    if(player1_HoldButton.getXButtonPressed()){//X1 Arm d
       armSystem.SetArmSpeed(0.2);
     }
-    if(player1_HoldButton.getYButtonPressed()){//Y1 Arm down
+    if(player1_HoldButton.getYButtonPressed()){//Y1 Arm U
       armSystem.SetArmSpeed(-0.2);
     }  
-    */  
+    
     if(player2_HoldButton.getAButtonPressed()){//A2 Elevator Up
-      elSubsystem.SetElevatorSpeed(0.2);
+      System.out.println(elSubsystem.TopSwitch());
+      if(elSubsystem.TopSwitch()){
+        elSubsystem.SetElevatorSpeed(0);  
+      }
+      else{
+        System.out.println("working");
+        elSubsystem.SetElevatorSpeed(0.2);
+      }
     }
     if(player2_HoldButton.getXButtonPressed()){//X2 Elevator Down
+      System.out.println("going down");
       elSubsystem.SetElevatorSpeed(-0.2);
+    }
+    if(player2_HoldButton.getYButtonPressed()){//Y2 intake Down
+      //intakeSystem.SetSolenoid(true);
+      intakeSystem.SetRollerSpeed(0.2);
+    }
+    else{
+      //intakeSystem.SetSolenoid(false);
+      intakeSystem.SetRollerSpeed(0);
+    }
+    if(player2_HoldButton.getBButtonPressed()){//B2 suck in
+      clawSystem.SetClawSpeed(0.35);
+    }
+    if(player2_HoldButton.getRightBumperPressed()){//RightBumper2 eject
+      clawSystem.SetClawSpeed(-0.35);
     }
 
 

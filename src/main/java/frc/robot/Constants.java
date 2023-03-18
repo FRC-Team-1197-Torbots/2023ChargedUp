@@ -18,7 +18,7 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
   public static class DriveTrainConstants {
     public static final int LeftTopID = 13;
-    public static final int LeftBottom1ID = 1;
+    public static final int LeftBottom1ID = 12;
     public static final int LeftBottom2ID = 2;
 
     public static final int RightTopID = 3;
@@ -47,7 +47,7 @@ public final class Constants {
   public static class IntakeHopperConstants{
     public static final int Intake1ID = 9;
     public static final int Intake2ID = 10;
-    //public static final int HopperID = 8;
+    public static final int HopperID = 8;
   }
 
   public static class AutoDriveConstants{
@@ -73,11 +73,11 @@ public final class Constants {
 
   public static class ElevatorArmConstants{
     public static final int ElMotor1ID = 7;
-    public static final int ElMotor2ID = 9;
-    //public static final int ArmID = 9;
-    //public static final int ClawID = 10;
-    public static final int limitSwitch1Port = 0;
-    public static final int limitSwitch2Port = 1;
+    public static final int ElMotor2ID = 6;
+    public static final int ArmID = 11;
+    public static final int ClawID = 1;
+    public static final int limitSwitch1Port = 8;
+    public static final int limitSwitch2Port = 9;
     public static final int armSwitch1Port = 2;
     public static final int armSwitch2Port = 3;
     public static final double EL_IDLE_POSITION = 0;

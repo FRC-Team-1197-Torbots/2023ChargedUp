@@ -11,9 +11,16 @@ import frc.robot.Constants.ElevatorArmConstants;
 public class Claw extends SubsystemBase{
     private Solenoid clawSolenoid;
     private CANSparkMax clawMotor;
+    private boolean clawState;
     public Claw(){
-        //clawSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 1);
-        //clawMotor = new CANSparkMax(ElevatorArmConstants.ClawID, MotorType.kBrushless);
+        clawState = true;
+        clawSolenoid = new Solenoid(PneumaticsModuleType.REVPH, 1);
+        clawMotor = new CANSparkMax(ElevatorArmConstants.ClawID, MotorType.kBrushless);
     }
-    
+    public void SetClawSpeed(double speed){
+        clawMotor.set(speed);
+    }
+    public void dropClaw(){
+        clawSolenoid.set(!clawState);
+    }
 }

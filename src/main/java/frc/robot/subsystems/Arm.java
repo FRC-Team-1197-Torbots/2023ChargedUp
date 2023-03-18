@@ -22,7 +22,7 @@ public class Arm extends SubsystemBase{
         //armMotor = new CANSparkMax(ElevatorArmConstants.ArmID, MotorType.kBrushless);
         armSwitch1 = new DigitalInput(ElevatorArmConstants.armSwitch1Port);
         armSwitch2 = new DigitalInput(ElevatorArmConstants.armSwitch2Port);
-        //armMotor1 = new CANSparkMax(ElevatorArmConstants.ArmID, MotorType.kBrushless);
+        armMotor1 = new CANSparkMax(ElevatorArmConstants.ArmID, MotorType.kBrushless);
     }
 
     public void SetArmState(STATE state){

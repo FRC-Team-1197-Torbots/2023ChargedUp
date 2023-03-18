@@ -22,8 +22,8 @@ public class Elevator extends SubsystemBase{
     public Elevator(){
         elMotor1 = new CANSparkMax(ElevatorArmConstants.ElMotor1ID, MotorType.kBrushless);
         elMotor2 = new CANSparkMax(ElevatorArmConstants.ElMotor2ID, MotorType.kBrushless);
-        //botlimitSwitch = new DigitalInput(ElevatorArmConstants.limitSwitch1Port);
-        //toplimitSwitch = new DigitalInput(ElevatorArmConstants.limitSwitch2Port);
+        botlimitSwitch = new DigitalInput(ElevatorArmConstants.limitSwitch1Port);
+        toplimitSwitch = new DigitalInput(ElevatorArmConstants.limitSwitch2Port);
         //elEncoder = new Encoder(0, 1);//Input correct channels later
         //ResetEncoder();
     }
@@ -46,7 +46,7 @@ public class Elevator extends SubsystemBase{
     public void periodic(){
         //SmartDashboard.putNumber("Encoder Value", GetElevatorPos());
     }
-    /* 
+    
     public boolean TopSwitch(){
         return toplimitSwitch.get();
     }
@@ -63,7 +63,7 @@ public class Elevator extends SubsystemBase{
     public void ResetEncoder(){
         elEncoder.reset();
     }
- */
+ 
 
 
 }

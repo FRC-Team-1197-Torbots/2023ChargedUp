@@ -14,8 +14,8 @@ public class RunCompressor extends CommandBase{
 
     @Override
     public void execute(){
-        System.out.println("Running Compressor");
-        m_Pneumatics.startCompressor();
+        //System.out.println("Running Compressor");
+        //m_Pneumatics.startCompressor();
     }
     
 }

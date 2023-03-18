@@ -11,8 +11,8 @@ public class Pneumatics extends SubsystemBase{
     }
 
     public void startCompressor(){
-        System.out.println("compressor enabled");
-        m_Compressor.enableDigital();
+        //System.out.println("compressor enabled");
+        //m_Compressor.enableDigital();
     }
     
 }

@@ -3,6 +3,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Solenoid;
 import frc.robot.Constants.IntakeHopperConstants;
@@ -16,8 +17,8 @@ public class Intake extends SubsystemBase{
     private Encoder IntakeEncoder;
     private GamePiece m_gamePiece;
     public Intake(){
-        //Intakeout = new Solenoid(null, 0);
-        //RollerBottom = new CANSparkMax(IntakeHopperConstants.Intake1ID, MotorType.kBrushless);
+        Intakeout = new Solenoid(PneumaticsModuleType.REVPH, 0);
+        RollerBottom = new CANSparkMax(IntakeHopperConstants.Intake1ID, MotorType.kBrushless);
         RollerTop = new CANSparkMax(IntakeHopperConstants.Intake2ID, MotorType.kBrushless);
         //IntakeEncoder = new Encoder(0, 0);
         //IntakeEncoder.reset();
@@ -31,11 +32,13 @@ public class Intake extends SubsystemBase{
     }
     */
     public void SetRollerSpeed(double speed){
-       //RollerBottom.set(speed);
+        RollerBottom.set(speed);
         RollerTop.set(-speed);
     }
+    
     public void SetSolenoid(boolean value){
-        //Intakeout.set(value);
+        Intakeout.set(value);
     }
+    
 
 }

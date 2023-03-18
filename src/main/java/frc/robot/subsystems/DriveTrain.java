@@ -41,7 +41,7 @@ public class DriveTrain extends SubsystemBase {
   private CANSparkMax RightBottom1;
   private CANSparkMax RightBottom2;
 
-  public static Solenoid driveSolenoid;
+  //public static Solenoid driveSolenoid;
   public static Compressor compressor;
 
   public static Encoder leftEncoder;
@@ -68,9 +68,9 @@ public class DriveTrain extends SubsystemBase {
 		RightBottom1 = new CANSparkMax(DriveTrainConstants.RightBottom1ID, MotorType.kBrushless);		
 		RightBottom2 = new CANSparkMax(DriveTrainConstants.RightBottom2ID, MotorType.kBrushless);
 
-    driveSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
+    //driveSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
 
-    leftEncoder = new Encoder(8, 9, false, Encoder.EncodingType.k4X);
+    leftEncoder = new Encoder(6, 7, false, Encoder.EncodingType.k4X);
 		rightEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
 
     //rightEncoder.
@@ -233,7 +233,7 @@ public class DriveTrain extends SubsystemBase {
     SetLeft(leftSpeed);
     SetRight(rightSpeed);
   }
-
+/* 
   public void shiftToLowGear() {
 		driveSolenoid.set(true);
 	}
@@ -242,7 +242,7 @@ public class DriveTrain extends SubsystemBase {
 	public void shiftToHighGear() {
 		driveSolenoid.set(false);
 	}
-
+*/
   /**
    * Example command factory method.
    *
