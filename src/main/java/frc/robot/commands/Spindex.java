@@ -24,7 +24,7 @@ public class Spindex extends CommandBase {
         addRequirements(subsystem);
     }
     @Override
-    public void initialize() {    }
+    public void initialize() {}
 
     @Override
     public void execute() {

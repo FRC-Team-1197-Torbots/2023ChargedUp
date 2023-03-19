@@ -70,7 +70,7 @@ public void execute() {
   double sign = Math.signum(throttle);
   throttle = sign * Math.pow(throttle, 2);
 
- steer = m_player1.getLeftX();
+ steer = 0.8*m_player1.getLeftX();
  sign = Math.signum(steer);
   steer = sign * Math.pow(steer, 2) * TeleopDriveConstants.STEER_SCALAR;  
 

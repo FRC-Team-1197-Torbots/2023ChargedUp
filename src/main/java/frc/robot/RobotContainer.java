@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.RamseteAutoBuilder;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -48,7 +49,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.commands.Arm.RunArm;
-import frc.robot.commands.Autos.DoNothing;
+//import frc.robot.commands.Autos.DoNothing;
 import frc.robot.commands.Autos.DumbAuto;
 import frc.robot.commands.Autos.OtherDumbAuto;
 //import frc.robot.commands.Autos.TestAuto;
@@ -115,6 +116,8 @@ public class RobotContainer {
     elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem));
     armSystem.setDefaultCommand(new RunArm(armSystem));
     clawSystem.setDefaultCommand(new RunClaw(clawSystem));
+
+    CameraServer.startAutomaticCapture();
   }
 
   private void initAutoBuilder() {
@@ -142,7 +145,7 @@ public class RobotContainer {
 }
 
 public void initializeAutoChooser(){
-  m_autoChooser.addOption("Do Nothing", new DoNothing(driveSubsystem));
+  m_autoChooser.setDefaultOption("Do Nothing", new WaitCommand(5));
   m_autoChooser.addOption("Drive Backwards", new DumbAuto(driveSubsystem));
   m_autoChooser.addOption("Drive Slightly forward then back", new OtherDumbAuto(driveSubsystem));//Slightly better auto than DumbAuto
   SmartDashboard.putData("Auto choices", m_autoChooser);

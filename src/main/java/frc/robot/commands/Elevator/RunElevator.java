@@ -35,19 +35,20 @@ public class RunElevator extends CommandBase{
         UP,DOWN,IDLE
     }
     public static enum IntakeorScore{
-        INTAKE, SCORE
+        INTAKE, SCORE, IDLE
     }
     private ElevatorState ElState;
     private IntakeorScore m_IntakeorScore;
     private double target;
-
+    private double elevatorOutput;
+    private double maxOutput;
     public RunElevator(Arm armSystem, Claw clawSystem, Elevator elevatorSystem){
         ElState = ElevatorState.IDLE;
         m_IntakeorScore = IntakeorScore.INTAKE;
         arm = armSystem;
         claw = clawSystem;
         elevator = elevatorSystem;
-        elevatorPID = new PIDController(0, 0, 0);
+        elevatorPID = new PIDController(0.001, 0, 0);
         //m_player1 = player1;
         addRequirements(elevatorSystem);
     }
@@ -60,24 +61,47 @@ public class RunElevator extends CommandBase{
     public void execute(){
         //System.out.println(elevator.GetElevatorPos());
         SmartDashboard.putNumber("Elevator Position", elevator.GetElevatorPos());
-        if(RobotContainer.player2_HoldButton.getLeftBumperPressed()){
-            if(m_IntakeorScore == IntakeorScore.INTAKE){
-                m_IntakeorScore = IntakeorScore.SCORE;
-            }
-            else{
+        elevatorOutput = elevatorPID.calculate(target - currentPosition);
+        if(elevatorOutput > 0.25){
+            elevatorOutput = 0.25;
+        }
+        elevator.SetElevatorSpeed(elevatorOutput);
+
+        if(RobotContainer.player2_HoldButton.getPOV() == 0){
+            if(m_IntakeorScore == IntakeorScore.IDLE){
                 m_IntakeorScore = IntakeorScore.INTAKE;
             }
+            else if(m_IntakeorScore == IntakeorScore.INTAKE){
+                m_IntakeorScore = IntakeorScore.SCORE;
+            }
+            else if(m_IntakeorScore == IntakeorScore.SCORE){
+                m_IntakeorScore = IntakeorScore.IDLE;
+            }
         }
-        if(RobotContainer.player2_HoldButton.getYButton()){
+        if(RobotContainer.player2_HoldButton.getPOV() == 180){
+            if(m_IntakeorScore == IntakeorScore.IDLE){
+                m_IntakeorScore = IntakeorScore.SCORE;
+            }
+            else if(m_IntakeorScore == IntakeorScore.SCORE){
+                m_IntakeorScore = IntakeorScore.INTAKE;
+            }
+            else if(m_IntakeorScore == IntakeorScore.INTAKE){
+                m_IntakeorScore = IntakeorScore.IDLE;
+            }
+        }
+        /* 
+        if(RobotContainer.player2_HoldButton.getYButtonPressed()){
             ElState = ElevatorState.UP;
         }
-        else if(RobotContainer.player2_HoldButton.getAButton()){
+        else if(RobotContainer.player2_HoldButton.getAButtonPressed()){
             ElState = ElevatorState.DOWN;
         }
         else{
             ElState = ElevatorState.IDLE;
         }
-
+        
+        
+        */
         switch(m_IntakeorScore){
             case INTAKE:
                 target = -5083;
@@ -85,9 +109,14 @@ public class RunElevator extends CommandBase{
             case SCORE:
                 target = -9400;
                 break;
+            case IDLE://comment out if PID doesn't work
+                target = 0;
+                break;
         }
+        
         SmartDashboard.putString("Elevator Mode", m_IntakeorScore.toString());
 
+        /* 
         switch(ElState){
             case UP: 
             if(Math.abs(elevator.GetElevatorPos())>= Math.abs(target)){
@@ -114,8 +143,8 @@ public class RunElevator extends CommandBase{
             elevator.SetElevatorSpeed(0.02);
             break;
         }
-        //System.out.println("Encoder value " + elevator.GetEncoderValue());
-        //System.out.println("Encoder rate " + elevator.GetEncoderRate());
+        */
+        
         /*switch(moveElevator){
             case IDLE:
             ElState = STATE.IDLE;

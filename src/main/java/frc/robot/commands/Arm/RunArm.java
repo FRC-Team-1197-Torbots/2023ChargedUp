@@ -23,9 +23,10 @@ public class RunArm extends CommandBase{
     private XboxController m_player2;
 
     private double currentPosition;
+    private Boolean StateAchieved = false;
     //private MoveElevatorArm moveArm;
     public static enum MoveArm{
-        UP,DOWN,IDLE
+        UP,DOWN
     }
     private MoveArm ArmState;
 
@@ -33,7 +34,7 @@ public class RunArm extends CommandBase{
         arm = armSystem;
         //claw = clawSystem;
         //m_player2 = player2;
-        ArmState= MoveArm.IDLE;
+        //ArmState= MoveArm.IDLE;
         //elevator = elevatorSystem;
         //elevatorPID = new PIDController(0, 0, 0);
         addRequirements(armSystem);//, //elevatorSystem);
@@ -49,7 +50,9 @@ public class RunArm extends CommandBase{
         
         //System.out.println("execute");
         SmartDashboard.putNumber("Potentiometer Value", arm.GetPotValue());
-        if(RobotContainer.player2_HoldButton.getXButton()){
+        SmartDashboard.putString("Arm State", ArmState.toString());
+        SmartDashboard.putBoolean("Arm State achieved?", StateAchieved);
+        /*if(RobotContainer.player2_HoldButton.getXButton()){
             ArmState = MoveArm.DOWN;
             //System.out.println("arm down");
         }
@@ -59,31 +62,61 @@ public class RunArm extends CommandBase{
         }else{
             ArmState = MoveArm.IDLE;
             //System.out.println("arm idle");
-        }
+        }*/
         switch(ArmState){
             case DOWN:
+            while(arm.GetPotValue()<=0.98){
+                if(arm.GetPotValue()>=0.9){
+                    arm.SetArmSpeed(0.2);
+                    StateAchieved=false;
+                }
+                else if(arm.GetPotValue()>=0.97){
+                    arm.SetArmSpeed(0.01);
+                    StateAchieved=true;
+                }
+                else{
+                    arm.SetArmSpeed(0.4);}
+                    StateAchieved=false;
+                }
+                
+        
+            /*
             if(arm.GetPotValue()>=0.98){
                 arm.SetArmSpeed(0.015);
             }
-            else{
+            else{*
             arm.SetArmSpeed(0.4);
-            }
+            }*/
                
                 //System.out.println("switch down");
                 break;
             case UP:
+            while(arm.GetPotValue()>=0.6285){
+                if(arm.GetPotValue()<=0.7){
+                    arm.SetArmSpeed(-0.2);
+                    StateAchieved=false;
+                }
+                else if(arm.GetPotValue()<=0.635){
+                    arm.SetArmSpeed(-0.015);
+                    StateAchieved=true;
+                }
+                else{
+                    arm.SetArmSpeed(-0.3);}
+                    StateAchieved=false;
+                }
+            /*
                 if(arm.GetPotValue()<=0.6285){
                     arm.SetArmSpeed(-0.01);
                 }
                 else{
                 arm.SetArmSpeed(-0.3);
                 }
-                //System.out.println("Switch up");
+                //System.out.println("Switch up");*/
                 break;
-            case IDLE:
+            /*case IDLE:
                 arm.SetArmSpeed(-0.01);
                 //System.out.println("Switch Idle");
-                break;
+                break;*/
         }
         //System.out.println("Encoder value " + elevator.GetEncoderValue());
         //System.out.println("Encoder rate " + elevator.GetEncoderRate());

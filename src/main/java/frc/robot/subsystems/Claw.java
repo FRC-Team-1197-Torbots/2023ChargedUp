@@ -27,4 +27,7 @@ public class Claw extends SubsystemBase{
     public boolean getSolenoidValue(){
         return clawSolenoid.get();
     }
+    public double getCurrent(){
+        return clawMotor.getOutputCurrent();
+    }
 }

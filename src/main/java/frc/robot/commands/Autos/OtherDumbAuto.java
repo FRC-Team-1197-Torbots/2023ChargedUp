@@ -6,6 +6,7 @@ import frc.robot.subsystems.DriveTrain;
 
 public class OtherDumbAuto extends SequentialCommandGroup{
     public OtherDumbAuto(DriveTrain driveSubsystem){
+        System.out.println("auto working");
         addCommands(new LinearTrajectory(driveSubsystem, 0.1, 0.35), new LinearTrajectory(driveSubsystem, -0.2, 4.5));
     }
     
