@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
@@ -21,13 +22,21 @@ public class Arm extends SubsystemBase{
     private boolean runArm = true;
     private double finalTarget;
     private AnalogPotentiometer armPot;
+
     public Arm(){
         //armMotor = new CANSparkMax(ElevatorArmConstants.ArmID, MotorType.kBrushless);
         armSwitch1 = new DigitalInput(ElevatorArmConstants.armSwitch1Port);
         armSwitch2 = new DigitalInput(ElevatorArmConstants.armSwitch2Port);
         armMotor1 = new CANSparkMax(ElevatorArmConstants.ArmID, MotorType.kBrushless);
         armPot = new AnalogPotentiometer(0);
+        armMotor1.setIdleMode(IdleMode.kBrake);
     }
+
+    @Override
+    public void periodic(){
+        
+    }
+
     /*
     public void SetArmState(STATE state){
         m_armState = state;

@@ -13,14 +13,18 @@ public class Claw extends SubsystemBase{
     private CANSparkMax clawMotor;
     private boolean clawState;
     public Claw(){
-        clawState = true;
-        clawSolenoid = new Solenoid(PneumaticsModuleType.REVPH, 1);
+        clawSolenoid = new Solenoid(PneumaticsModuleType.REVPH, 0);
         clawMotor = new CANSparkMax(ElevatorArmConstants.ClawID, MotorType.kBrushless);
     }
     public void SetClawSpeed(double speed){
         clawMotor.set(speed);
     }
     public void dropClaw(){
-        clawSolenoid.set(!clawState);
+        //clawSolenoid.set(!clawSolenoid.get());
+        clawSolenoid.toggle();
+        System.out.println("Claw scolenoid: " + clawSolenoid.get());
+    }
+    public boolean getSolenoidValue(){
+        return clawSolenoid.get();
     }
 }

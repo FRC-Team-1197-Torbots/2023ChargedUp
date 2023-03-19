@@ -20,7 +20,7 @@ public class RunArm extends CommandBase{
     private Elevator elevator;
     private PIDController elevatorPID;
     private double m_speed;
-    private XboxController m_player1;
+    private XboxController m_player2;
 
     private double currentPosition;
     //private MoveElevatorArm moveArm;
@@ -29,39 +29,60 @@ public class RunArm extends CommandBase{
     }
     private MoveArm ArmState;
 
-    public RunArm(Arm armSystem, Claw clawSystem, XboxController player1){//Elevator elevatorSystem, double speed){
+    public RunArm(Arm armSystem){//, XboxController player2, Elevator elevatorSystem, double speed){
         arm = armSystem;
-        claw = clawSystem;
-        m_player1 = player1;
+        //claw = clawSystem;
+        //m_player2 = player2;
         ArmState= MoveArm.IDLE;
         //elevator = elevatorSystem;
         //elevatorPID = new PIDController(0, 0, 0);
-        addRequirements(armSystem, clawSystem);//, //elevatorSystem);
+        addRequirements(armSystem);//, //elevatorSystem);
+        //System.out.println("arm instantiate");
     }
     @Override
     public void initialize() {
+        SmartDashboard.putNumber("Potentiometer Value", arm.GetPotValue());
         //elevator.ResetEncoder();
     }
     @Override
     public void execute(){
+        
+        //System.out.println("execute");
         SmartDashboard.putNumber("Potentiometer Value", arm.GetPotValue());
-        if(RobotContainer.player1_HoldButton.getXButtonPressed()){
+        if(RobotContainer.player2_HoldButton.getXButton()){
             ArmState = MoveArm.DOWN;
+            //System.out.println("arm down");
         }
-        else if(RobotContainer.player1_HoldButton.getBButtonPressed()){
+        else if(RobotContainer.player2_HoldButton.getBButton()){
             ArmState = MoveArm.UP;
+            //System.out.println("arm up");
         }else{
             ArmState = MoveArm.IDLE;
+            //System.out.println("arm idle");
         }
         switch(ArmState){
             case DOWN:
-                arm.SetArmSpeed(0.2);
+            if(arm.GetPotValue()>=0.98){
+                arm.SetArmSpeed(0.015);
+            }
+            else{
+            arm.SetArmSpeed(0.4);
+            }
+               
+                //System.out.println("switch down");
                 break;
             case UP:
-                arm.SetArmSpeed(-0.2);
+                if(arm.GetPotValue()<=0.6285){
+                    arm.SetArmSpeed(-0.01);
+                }
+                else{
+                arm.SetArmSpeed(-0.3);
+                }
+                //System.out.println("Switch up");
                 break;
             case IDLE:
-                arm.SetArmSpeed(0);
+                arm.SetArmSpeed(-0.01);
+                //System.out.println("Switch Idle");
                 break;
         }
         //System.out.println("Encoder value " + elevator.GetEncoderValue());
@@ -90,7 +111,20 @@ public class RunArm extends CommandBase{
         m_speed = speed;
         */
     }
-    }//-9242 is around the max encoder value when elevator is fully extended
+
+    @Override
+    public void end(boolean interrupted) {
+
+
+    }
+
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        return false;
+
+    }
+}//-9242 is around the max encoder value when elevator is fully extended
 
     
 

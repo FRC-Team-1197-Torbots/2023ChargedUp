@@ -66,11 +66,11 @@ public void execute() {
         driveSubsystem.shiftToHighGear();
     }
     */
-  throttle = 0.6 * m_player1.getLeftY();
+  throttle = 1 * m_player1.getLeftY();
   double sign = Math.signum(throttle);
   throttle = sign * Math.pow(throttle, 2);
 
- steer = 0.6 * m_player1.getLeftX();
+ steer = m_player1.getLeftX();
  sign = Math.signum(steer);
   steer = sign * Math.pow(steer, 2) * TeleopDriveConstants.STEER_SCALAR;  
 

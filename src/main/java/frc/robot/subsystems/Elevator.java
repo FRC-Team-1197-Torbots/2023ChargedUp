@@ -24,7 +24,7 @@ public class Elevator extends SubsystemBase{
         elMotor2 = new CANSparkMax(ElevatorArmConstants.ElMotor2ID, MotorType.kBrushless);
         botlimitSwitch = new DigitalInput(ElevatorArmConstants.limitSwitch1Port);
         toplimitSwitch = new DigitalInput(ElevatorArmConstants.limitSwitch2Port);
-        //elEncoder = new Encoder(0, 1);//Input correct channels later
+        elEncoder = new Encoder(4, 5);//Input correct channels later
         //ResetEncoder();
     }
 

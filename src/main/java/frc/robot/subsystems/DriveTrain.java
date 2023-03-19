@@ -225,7 +225,7 @@ public class DriveTrain extends SubsystemBase {
 
 	// Setting the right master Talon's speed to the given parameter
 	public void SetRight(double speed) {
-		RightTop.set(speed); //in correct setting, but "software fix"		
+		RightTop.set(-speed); //in correct setting, but "software fix"		
 		RightBottom1.set(-speed);
 		RightBottom2.set(-speed);
 	}

@@ -26,10 +26,13 @@ public class IntakeGamePiece extends CommandBase {
     }
     @Override
     public void execute(){
+        //intakeSystem.SetSolenoid(false);
         if(RobotContainer.player1_HoldButton.getRightBumperPressed()){
-        intakeSystem.SetRollerSpeed(0.2);}
+            
+        //intakeSystem.SetRollerSpeed(0.2);}
         //else{
         //intakeSystem.SetRollerSpeed(cubespeed);
         
         }
     }
+}

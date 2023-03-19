@@ -51,7 +51,7 @@ import frc.robot.commands.Arm.RunArm;
 import frc.robot.commands.Autos.DoNothing;
 import frc.robot.commands.Autos.DumbAuto;
 import frc.robot.commands.Autos.OtherDumbAuto;
-import frc.robot.commands.Autos.TestAuto;
+//import frc.robot.commands.Autos.TestAuto;
 import frc.robot.commands.Claw.RunClaw;
 import frc.robot.commands.Drive.ArcadeDrive;
 import frc.robot.commands.Elevator.RunElevator;
@@ -80,6 +80,7 @@ public class RobotContainer {
 
   private RamseteAutoBuilder m_autoBuilder;
   private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
+  private final SendableChooser<String> m_autos = new SendableChooser<>();
   private final DriveTrain driveSubsystem = new DriveTrain();
   private final Elevator elSubsystem = new Elevator();
   private final Arm armSystem = new Arm();
@@ -88,16 +89,21 @@ public class RobotContainer {
   private final Pneumatics pneumaticsSystem = new Pneumatics();
   //private RunCompressor runCompressor = new RunCompressor(pneumaticsSystem);
   //private ArcadeDrive arcadeDrive = new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftY());
-  private RunArm runArm = new RunArm(armSystem, clawSystem, player1_HoldButton);
+  //private RunArm runArm;// = new RunArm(armSystem, clawSystem, player1_HoldButton);
   private GamePiece m_gamePiece;
+  private enum IntakeState{
+    UP, DOWN
+  }
+  private IntakeState m_IntakeState;
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     //initAutoBuilder();
     initializeSubsystems();
-    //configureButtonBindings();
+    configureButtonBindings();
     initializeAutoChooser();
+    //m_IntakeState = IntakeState.UP;
     //System.out.println("RobotContainer Initialized");
   }
 
@@ -107,7 +113,8 @@ public class RobotContainer {
     //pneumaticsSystem.setDefaultCommand(runCompressor);
     //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
     elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem));
-    armSystem.setDefaultCommand(runArm);
+    armSystem.setDefaultCommand(new RunArm(armSystem));
+    clawSystem.setDefaultCommand(new RunClaw(clawSystem));
   }
 
   private void initAutoBuilder() {
@@ -136,8 +143,9 @@ public class RobotContainer {
 
 public void initializeAutoChooser(){
   m_autoChooser.addOption("Do Nothing", new DoNothing(driveSubsystem));
-  m_autoChooser.addOption("Dumb Auto", new DumbAuto(driveSubsystem));
-  m_autoChooser.addOption("Other Dumb Auto", new OtherDumbAuto(driveSubsystem));
+  m_autoChooser.addOption("Drive Backwards", new DumbAuto(driveSubsystem));
+  m_autoChooser.addOption("Drive Slightly forward then back", new OtherDumbAuto(driveSubsystem));//Slightly better auto than DumbAuto
+  SmartDashboard.putData("Auto choices", m_autoChooser);
   //m_autoChooser.addOption("TestAuto", new TestAuto(m_autoBuilder, DriveTrainSubsystem));
 }
   
@@ -155,7 +163,7 @@ public void initializeAutoChooser(){
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     
     player1.rightTrigger(0.1).whileTrue(new IntakeGamePiece(intakeSystem, GamePiece.CONE));
-    player1.a().onTrue(new RunClaw(clawSystem));
+    //player1.a().onTrue(new RunClaw(clawSystem));
     //player1.y().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.MIDDLE));
     //player1.a().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.TOP));
     
@@ -164,10 +172,10 @@ public void initializeAutoChooser(){
     //player1.pov(0).whileTrue(new RunArm(armSystem, clawSystem, 0.35));//elSubsystem, 0.1));
     //player1.pov(180).onTrue(new RunArm(armSystem, clawSystem, -0.35));//elSubsystem, -0.1));
     //player1.b().onTrue(new RunCompressor(pneumaticsSystem));
-    player2.povUp().onTrue(new SetElevatorState(elSubsystem, TARGET.TOP));
-    player2.povDown().onTrue(new SetElevatorState(elSubsystem, TARGET.MIDDLE));
-    player2.y().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CONE));
-    player2.x().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CUBE));
+    //player2.povUp().onTrue(new SetElevatorState(elSubsystem, TARGET.TOP));
+    //player2.povDown().onTrue(new SetElevatorState(elSubsystem, TARGET.MIDDLE));
+    //player2.y().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CONE));
+    //player2.x().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CUBE));
     //player1.a().onTrue(new AutoIntakeCone(intakeSystem, 0.2, true));
 
     
@@ -184,6 +192,7 @@ public void initializeAutoChooser(){
   }
 
   public void testPeriodic(){
+
     if(player1_HoldButton.getAButton()){// A1 drive forward
       driveSubsystem.SetLeft(0.2);
       driveSubsystem.SetRight(0.2);
@@ -214,21 +223,30 @@ public void initializeAutoChooser(){
       System.out.println("going down");
       elSubsystem.SetElevatorSpeed(-0.2);
     }
-    if(player2_HoldButton.getYButtonPressed()){//Y2 intake Down
-      //intakeSystem.SetSolenoid(true);
-      intakeSystem.SetRollerSpeed(0.2);
+    if(player2_HoldButton.getYButton()){//Y2 intake Down
+      m_IntakeState = IntakeState.DOWN;   
+      //intakeSystem.SetRollerSpeed(0.2);
     }
     else{
-      //intakeSystem.SetSolenoid(false);
-      intakeSystem.SetRollerSpeed(0);
+      m_IntakeState = IntakeState.UP;
+      //intakeSystem.SetRollerSpeed(0);
     }
-    if(player2_HoldButton.getBButtonPressed()){//B2 suck in
+    if(player2_HoldButton.getBButton()){//B2 suck in
       clawSystem.SetClawSpeed(0.35);
     }
     if(player2_HoldButton.getRightBumperPressed()){//RightBumper2 eject
-      clawSystem.SetClawSpeed(-0.35);
+      //clawSystem.SetClawSpeed(-0.35);
+      clawSystem.dropClaw();
     }
 
+    switch(m_IntakeState){
+      case UP:
+        intakeSystem.SetSolenoid(true);
+        break;
+      case DOWN:
+        //intakeSystem.SetSolenoid(false);
+        break;
+    }
 
 
     SmartDashboard.putNumber("Drive Left Encoder", driveSubsystem.getLeftEncoder());

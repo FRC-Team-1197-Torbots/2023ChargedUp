@@ -48,10 +48,13 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
@@ -60,13 +63,16 @@ public class Robot extends TimedRobot {
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
+      System.out.println("auto selected");
       m_autonomousCommand.schedule();
     }
   }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    m_autonomousCommand.execute();
+  }
 
   @Override
   public void teleopInit() {

@@ -9,7 +9,7 @@ public class DumbAuto extends SequentialCommandGroup{
 
     //Temporary Auto for the LA Regional
     public DumbAuto(DriveTrain driveTrain){
-        
+        System.out.println("running auto");
         addCommands(new LinearTrajectory(driveTrain, -0.2, 4));
     }
     

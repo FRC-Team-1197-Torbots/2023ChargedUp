@@ -17,7 +17,7 @@ public class Intake extends SubsystemBase{
     private Encoder IntakeEncoder;
     private GamePiece m_gamePiece;
     public Intake(){
-        Intakeout = new Solenoid(PneumaticsModuleType.REVPH, 0);
+        Intakeout = new Solenoid(PneumaticsModuleType.REVPH, 1);
         RollerBottom = new CANSparkMax(IntakeHopperConstants.Intake1ID, MotorType.kBrushless);
         RollerTop = new CANSparkMax(IntakeHopperConstants.Intake2ID, MotorType.kBrushless);
         //IntakeEncoder = new Encoder(0, 0);
