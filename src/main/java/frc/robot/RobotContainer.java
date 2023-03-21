@@ -49,6 +49,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.commands.Arm.RunArm;
+import frc.robot.commands.Autos.BottomScoreConeCube;
 //import frc.robot.commands.Autos.DoNothing;
 import frc.robot.commands.Autos.DumbAuto;
 import frc.robot.commands.Autos.OtherDumbAuto;
@@ -100,7 +101,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
-    //initAutoBuilder();
+    initAutoBuilder();
     initializeSubsystems();
     configureButtonBindings();
     initializeAutoChooser();
@@ -112,16 +113,17 @@ public class RobotContainer {
     //System.out.println("Pneumatic System initialized");
     driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, player1_HoldButton));
     //pneumaticsSystem.setDefaultCommand(runCompressor);
+    intakeSystem.setDefaultCommand(new IntakeGamePiece(intakeSystem));
     //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
-    elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem));
-    armSystem.setDefaultCommand(new RunArm(armSystem));
+    //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem));
+    //armSystem.setDefaultCommand(new RunArm(armSystem));
     clawSystem.setDefaultCommand(new RunClaw(clawSystem));
 
     CameraServer.startAutomaticCapture();
   }
 
   private void initAutoBuilder() {
-    /* 
+    
     eventMap.put("wait", new WaitCommand(5));
     //eventMap.put("IntakeCone", new AutoIntakeCone(intakeSystem, 0.5));
    // eventMap.put("IntakeCube", new AutoIntakeCube(intakeSystem, 0.25));
@@ -140,7 +142,7 @@ public class RobotContainer {
             eventMap, 
             false, 
             subArray); 
-    */
+  
               
 }
 
@@ -148,6 +150,7 @@ public void initializeAutoChooser(){
   m_autoChooser.setDefaultOption("Do Nothing", new WaitCommand(5));
   m_autoChooser.addOption("Drive Backwards", new DumbAuto(driveSubsystem));
   m_autoChooser.addOption("Drive Slightly forward then back", new OtherDumbAuto(driveSubsystem));//Slightly better auto than DumbAuto
+  m_autoChooser.addOption("Blue Bottom Auto", new BottomScoreConeCube("BlueBottomIntakeCone", m_autoBuilder, driveSubsystem, intakeSystem, elSubsystem, armSystem));
   SmartDashboard.putData("Auto choices", m_autoChooser);
   //m_autoChooser.addOption("TestAuto", new TestAuto(m_autoBuilder, DriveTrainSubsystem));
 }
@@ -165,7 +168,7 @@ public void initializeAutoChooser(){
   private void configureButtonBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     
-    player1.rightTrigger(0.1).whileTrue(new IntakeGamePiece(intakeSystem, GamePiece.CONE));
+    //player1.rightTrigger(0.1).whileTrue(new IntakeGamePiece(intakeSystem));
     //player1.a().onTrue(new RunClaw(clawSystem));
     //player1.y().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.MIDDLE));
     //player1.a().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.TOP));

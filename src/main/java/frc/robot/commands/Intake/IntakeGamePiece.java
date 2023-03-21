@@ -12,27 +12,45 @@ public class IntakeGamePiece extends CommandBase {
     //private double cubespeed;
     private double conespeed;
     private double cubespeed;
-    private GamePiece m_gamePiece;
-    public IntakeGamePiece(Intake subsystem, GamePiece gamePiece){
+    private boolean state;
+    //private GamePiece m_gamePiece;
+    public IntakeGamePiece(Intake subsystem){//, GamePiece gamePiece){
         this.intakeSystem = subsystem;
-        m_gamePiece = gamePiece;
+        state = true;
+        //m_gamePiece = gamePiece;
         addRequirements(subsystem);
 
     }
 
     @Override
     public void initialize(){
-        //intakeSystem.SetSolenoid(true);
+        intakeSystem.SetSolenoid(state);
     }
     @Override
     public void execute(){
         //intakeSystem.SetSolenoid(false);
         if(RobotContainer.player1_HoldButton.getRightBumperPressed()){
-            
-        //intakeSystem.SetRollerSpeed(0.2);}
+            state = !state;
+            intakeSystem.SetSolenoid(state);
+        if(RobotContainer.player1_HoldButton.getLeftBumper()){
+            System.out.println("intake running");
+            intakeSystem.SetRollerSpeed(0.2);
+        }
+
+        }
         //else{
         //intakeSystem.SetRollerSpeed(cubespeed);
         
-        }
+    }
+    
+
+    @Override
+    public void end(boolean interrupted){
+
+    }
+
+    @Override
+    public boolean isFinished(){
+        return false;
     }
 }

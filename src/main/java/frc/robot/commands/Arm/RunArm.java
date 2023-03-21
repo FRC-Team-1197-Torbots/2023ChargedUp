@@ -34,7 +34,7 @@ public class RunArm extends CommandBase{
         arm = armSystem;
         //claw = clawSystem;
         //m_player2 = player2;
-        //ArmState= MoveArm.IDLE;
+        ArmState= MoveArm.DOWN;
         //elevator = elevatorSystem;
         //elevatorPID = new PIDController(0, 0, 0);
         addRequirements(armSystem);//, //elevatorSystem);

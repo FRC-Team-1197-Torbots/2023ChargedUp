@@ -13,7 +13,7 @@ public class Claw extends SubsystemBase{
     private CANSparkMax clawMotor;
     private boolean clawState;
     public Claw(){
-        clawSolenoid = new Solenoid(PneumaticsModuleType.REVPH, 0);
+        clawSolenoid = new Solenoid(PneumaticsModuleType.REVPH, 2);
         clawMotor = new CANSparkMax(ElevatorArmConstants.ClawID, MotorType.kBrushless);
     }
     public void SetClawSpeed(double speed){

@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import java.util.function.Consumer;
 
+import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix.sensors.PigeonIMU;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -18,6 +20,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -47,18 +50,21 @@ public class DriveTrain extends SubsystemBase {
   public static Encoder leftEncoder;
   public static Encoder rightEncoder;
 
-  //private final DifferentialDriveOdometry m_odometry;
+  private final DifferentialDriveOdometry m_odometry;
 
   private AHRS gyro;
+  private final DifferentialDrivePoseEstimator poseEstimator;
+  private Pigeon2 pigeon;
 
-  /*private final DifferentialDrivePoseEstimator poseEstimator;
+  
   private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(AutoDriveConstants.ksVolts, 
   AutoDriveConstants.kVoltSecondPerMeter, 
   AutoDriveConstants.kVoltSecondSquaredPerMeter);
-  */
+  
 
   /** Creates a new ExampleSubsystem. */
   public DriveTrain() {
+    pigeon = new Pigeon2(0);
     gyro = new AHRS(SPI.Port.kMXP);
 
     LeftTop = new CANSparkMax(DriveTrainConstants.LeftTopID, MotorType.kBrushless);
@@ -75,13 +81,13 @@ public class DriveTrain extends SubsystemBase {
 		rightEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
 
     //rightEncoder.
-    //m_odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
-    //poseEstimator = new DifferentialDrivePoseEstimator(new DifferentialDriveKinematics(0), new Rotation2d(), getHeading(), getAverageEncoder(), getPose());
+    m_odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
+    poseEstimator = new DifferentialDrivePoseEstimator(new DifferentialDriveKinematics(0), new Rotation2d(), getHeading(), getAverageEncoder(), getPose());
     
     resetEncoder();
     resetGyro();
 
-    //m_odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), new Pose2d());
+    m_odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), new Pose2d());
   }
 
   /**
@@ -89,6 +95,10 @@ public class DriveTrain extends SubsystemBase {
    *
    * @return a command
    */
+
+  public void AutoDriveMotor(double throttle, double steer){
+    setMotorSpeeds(throttle, steer);
+  }
 
   public void setMotorState(IdleMode mode){
     LeftTop.setIdleMode(mode);
@@ -145,7 +155,7 @@ public class DriveTrain extends SubsystemBase {
   public double getTurnRate(){
     return -gyro.getRate();
   }
-/* 
+
   public Pose2d getPose(){
     return m_odometry.getPoseMeters();
   }
@@ -185,7 +195,6 @@ public class DriveTrain extends SubsystemBase {
     LeftBottom1.setVoltage(rightVolts);
     LeftBottom2.setVoltage(rightVolts);
   }
-*/
   
 
   @Override
