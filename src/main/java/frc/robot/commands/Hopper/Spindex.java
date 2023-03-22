@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.Hopper;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -15,11 +15,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Hopper;
 
+
+
 public class Spindex extends CommandBase {
+
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Hopper hopperSubsystem;
+    
+    public static enum moveHopper{
+      IDLE, CONE
+    }
+    private moveHopper HopperState;
     public Spindex(Hopper subsystem) {
         hopperSubsystem = subsystem;
+        HopperState= moveHopper.IDLE;
         
         addRequirements(subsystem);
     }
@@ -28,9 +37,52 @@ public class Spindex extends CommandBase {
 
     @Override
     public void execute() {
-        //Color color = hopperSubsystem.colorsensor.getColor();
-        //boolean connected = hopperSubsystem.colorsensor.isConnected();
 
+      hopperSubsystem.hoppercam.setPipelineIndex(0);
+
+      //byte[] ledsignal = {0x00}; //
+
+      //get what limelight sees. if a target is detected, it's a cone
+      var camresult = hopperSubsystem.hoppercam.getLatestResult();
+      /*
+      if (camresult.hasTargets()){
+        PhotonTrackedTarget camtarget = camresult.getBestTarget();
+        double skew = camtarget.getSkew();
+        SmartDashboard.putNumber("skew", skew);
+        SmartDashboard.putString("status","Cone found");
+        //ledsignal[0] = 0x01;
+      }
+        // if no target from limelight but breakbeam sees something, it's a cube
+      else if(hopperSubsystem.breakBeam.get()){
+          SmartDashboard.putString("status","Cube found");
+          //ledsignal[0] = 0x02;
+      }
+      else{
+        SmartDashboard.putString("status", "No object found");
+      }
+      */
+    
+      switch(HopperState){
+        case IDLE:
+        hopperSubsystem.SpinHopper(0);
+        break;
+
+        case CONE:
+        while(camresult.hasTargets()){
+          //SmartDashboard.putString("status","Cone found");
+          PhotonTrackedTarget camtarget = camresult.getBestTarget();
+          double skew = camtarget.getSkew();
+          if(-20 <= skew && skew <= 20){
+            hopperSubsystem.SpinHopper(0);
+
+          }
+          else{
+            hopperSubsystem.SpinHopper(.6);
+          }
+        }
+        break;
+      }
+        //Color color = hopperSubsystem.colorsensor.getColor();
         
         //int red = rawcolor.red;
         //int green = rawcolor.green;
@@ -38,44 +90,7 @@ public class Spindex extends CommandBase {
         //System.out.println(color.toString());//"Red: " + red + ", Green: " + green + ", Blue: " + blue);
         //System.out.println(connected);
 
-        /**
-         * The sensor returns a raw IR value of the infrared light detected.
-         */
         //double IR = hopperSubsystem.colorsensor.getIR();
-    
-        /**
-         * Open Smart Dashboard or Shuffleboard to see the color detected by the 
-         * sensor.
-         */
-        /*SmartDashboard.putNumber("Red", color.red);
-        SmartDashboard.putNumber("Green", color.green);
-        SmartDashboard.putNumber("Blue", color.blue);
-        SmartDashboard.putNumber("IR", IR);
-        SmartDashboard.putString("color",color.toString());
-        System.out.println(color.toString());
-        */
-
-        hopperSubsystem.hoppercam.setPipelineIndex(0);
-
-        //byte[] ledsignal = {0x00}; //
-
-        //get what limelight sees. if a target is detected, it's a cone
-        var camresult = hopperSubsystem.hoppercam.getLatestResult();
-        if (camresult.hasTargets()){
-          PhotonTrackedTarget camtarget = camresult.getBestTarget();
-          double skew = camtarget.getSkew();
-          SmartDashboard.putNumber("skew", skew);
-          SmartDashboard.putString("status","Cone found, rotate " + -skew + " degrees");
-          //ledsignal[0] = 0x01;
-        }
-        // if no target from limelight but breakbeam sees something, it's a cube
-        else if(hopperSubsystem.breakBeam.get()){
-            SmartDashboard.putString("status","Cube found");
-            //ledsignal[0] = 0x02;
-        }
-        else{
-          SmartDashboard.putString("status", "No object found");
-        }
 
         /*if (color.blue >= 0.365234) {
           colorString = "Cube";

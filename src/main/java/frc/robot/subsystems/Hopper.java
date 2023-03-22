@@ -26,4 +26,7 @@ public class Hopper extends SubsystemBase {
         
 
     }
+    public void SpinHopper(double speed) {
+		HopperMotor.set(speed);
+	}
 }
