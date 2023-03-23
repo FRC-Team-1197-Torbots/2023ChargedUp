@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
-      System.out.println("auto selected");
+      //System.out.println("auto selected");
       m_autonomousCommand.schedule();
     }
   }
@@ -71,7 +71,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    m_autonomousCommand.execute();
+    m_robotContainer.autonomousPeriodic();
+    //m_autonomousCommand.execute();
   }
 
   @Override

@@ -35,16 +35,20 @@ public class ArcadeDrive extends CommandBase {
   private double rightOutput;
 
   private PIDController pidDrive;
+  private DoubleSupplier m_throttle;
+  private DoubleSupplier m_steer;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ArcadeDrive(DriveTrain subsystem, XboxController player1) {
+  public ArcadeDrive(DriveTrain subsystem, DoubleSupplier throttleInput, DoubleSupplier steerInput, XboxController player1) {
     driveSubsystem = subsystem;
-    pidDrive = new PIDController(TeleopDriveConstants.velocitykP, TeleopDriveConstants.velocitykI, TeleopDriveConstants.velocitykD);
     m_player1 = player1;
+    m_throttle = throttleInput;
+    m_steer = steerInput;
+    pidDrive = new PIDController(TeleopDriveConstants.velocitykP, TeleopDriveConstants.velocitykI, TeleopDriveConstants.velocitykD);
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }
@@ -66,13 +70,16 @@ public void execute() {
         driveSubsystem.shiftToHighGear();
     }
     */
-  throttle = 1 * m_player1.getLeftY();
+  throttle = m_throttle.getAsDouble();
+  steer = m_steer.getAsDouble();
   double sign = Math.signum(throttle);
   throttle = sign * Math.pow(throttle, 2);
+  //System.out.println("Throttle: " + throttle);
 
- steer = 0.8*m_player1.getLeftX();
+ 
  sign = Math.signum(steer);
   steer = sign * Math.pow(steer, 2) * TeleopDriveConstants.STEER_SCALAR;  
+  //System.out.println("Steer: " + steer);
 
      if(Math.abs(throttle) < 0.025f) {
           throttle = 0;

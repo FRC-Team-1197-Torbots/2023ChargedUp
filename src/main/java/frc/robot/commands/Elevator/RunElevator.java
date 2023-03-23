@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
-
+import frc.robot.commands.Arm.RunArm;
 
 public class RunElevator extends CommandBase{
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -20,7 +20,7 @@ public class RunElevator extends CommandBase{
     private Claw claw;
     private Elevator elevator;
     private PIDController elevatorPID;
-
+    private RunArm Arm;
     private double currentPosition;
     private double targetPosition;
     private XboxController m_player1;
@@ -42,6 +42,7 @@ public class RunElevator extends CommandBase{
     private double target;
     private double elevatorOutput;
     private double maxOutput;
+    private boolean targetReached;
     public RunElevator(Arm armSystem, Claw clawSystem, Elevator elevatorSystem){
         ElState = ElevatorState.IDLE;
         m_IntakeorScore = IntakeorScore.INTAKE;
@@ -66,7 +67,12 @@ public class RunElevator extends CommandBase{
             elevatorOutput = 0.25;
         }
         elevator.SetElevatorSpeed(elevatorOutput);
-
+        if (Math.abs(target-currentPosition)<=20){
+            targetReached=true;
+        }
+        else{
+            targetReached=false;
+        }
         if(RobotContainer.player2_HoldButton.getPOV() == 0){
             if(m_IntakeorScore == IntakeorScore.IDLE){
                 m_IntakeorScore = IntakeorScore.INTAKE;
@@ -89,6 +95,9 @@ public class RunElevator extends CommandBase{
                 m_IntakeorScore = IntakeorScore.IDLE;
             }
         }
+        // if(targetReached==true && (m_IntakeorScore==IntakeorScore.SCORE || m_IntakeorScore==IntakeorScore.INTAKE )){
+        //     Arm.
+        // }
         /* 
         if(RobotContainer.player2_HoldButton.getYButtonPressed()){
             ElState = ElevatorState.UP;

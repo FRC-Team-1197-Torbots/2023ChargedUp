@@ -166,6 +166,7 @@ public class Spindex extends CommandBase {
     }
 */
     SmartDashboard.putBoolean("Breakbeam",hopperSubsystem.breakBeam.get());
+                                                                                        //SmartDashboard.putNumber("Hopper Position", hopperSubsystem )
 
     //int SERVICE_PORT = 8888;
 /*

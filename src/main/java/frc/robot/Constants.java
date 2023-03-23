@@ -75,7 +75,7 @@ public final class Constants {
     public static final int ElMotor1ID = 7;
     public static final int ElMotor2ID = 6;
     public static final int ArmID = 11;
-    public static final int ClawID = 1;
+    public static final int ClawID = 14;
     public static final int limitSwitch1Port = 8;
     public static final int limitSwitch2Port = 9;
     public static final int armSwitch1Port = 2;

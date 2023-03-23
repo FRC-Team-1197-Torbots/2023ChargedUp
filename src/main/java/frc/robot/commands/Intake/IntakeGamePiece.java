@@ -13,10 +13,15 @@ public class IntakeGamePiece extends CommandBase {
     private double conespeed;
     private double cubespeed;
     private boolean state;
+    private enum IntakeState{
+        UP, DOWN
+    }
+    private IntakeState m_IntakeState;
     //private GamePiece m_gamePiece;
     public IntakeGamePiece(Intake subsystem){//, GamePiece gamePiece){
         this.intakeSystem = subsystem;
         state = true;
+        m_IntakeState = IntakeState.UP;
         //m_gamePiece = gamePiece;
         addRequirements(subsystem);
 
@@ -29,19 +34,39 @@ public class IntakeGamePiece extends CommandBase {
     @Override
     public void execute(){
         //intakeSystem.SetSolenoid(false);
+        //intakeSystem.SetRollerSpeed(0.3);
+        
         if(RobotContainer.player1_HoldButton.getRightBumperPressed()){
-            state = !state;
-            intakeSystem.SetSolenoid(state);
-        if(RobotContainer.player1_HoldButton.getLeftBumper()){
-            System.out.println("intake running");
-            intakeSystem.SetRollerSpeed(0.2);
+            if(m_IntakeState == IntakeState.DOWN){
+                m_IntakeState = IntakeState.UP;
+            }
+            else{
+                m_IntakeState = IntakeState.DOWN;
+            }
         }
+        switch(m_IntakeState){
+            case UP:
+                state = true;
+                intakeSystem.SetSolenoid(state);
+                //System.out.println("intake running");
+                intakeSystem.SetRollerSpeed(0);
+                break;
+            case DOWN:
+                state = false;
+                intakeSystem.SetSolenoid(state);
+                //System.out.println("intake off");
+                intakeSystem.SetRollerSpeed(0.45);
+                break;
+        }
+            
+            
+        
 
-        }
+    }
         //else{
         //intakeSystem.SetRollerSpeed(cubespeed);
         
-    }
+    
     
 
     @Override

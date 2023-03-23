@@ -53,6 +53,7 @@ import frc.robot.commands.Autos.BottomScoreConeCube;
 //import frc.robot.commands.Autos.DoNothing;
 import frc.robot.commands.Autos.DumbAuto;
 import frc.robot.commands.Autos.OtherDumbAuto;
+import frc.robot.commands.Autos.StraightTest;
 //import frc.robot.commands.Autos.TestAuto;
 import frc.robot.commands.Claw.RunClaw;
 import frc.robot.commands.Drive.ArcadeDrive;
@@ -111,7 +112,7 @@ public class RobotContainer {
 
   public void initializeSubsystems(){
     //System.out.println("Pneumatic System initialized");
-    driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, player1_HoldButton));
+    driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX(), player1_HoldButton));
     //pneumaticsSystem.setDefaultCommand(runCompressor);
     intakeSystem.setDefaultCommand(new IntakeGamePiece(intakeSystem));
     //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
@@ -151,8 +152,14 @@ public void initializeAutoChooser(){
   m_autoChooser.addOption("Drive Backwards", new DumbAuto(driveSubsystem));
   m_autoChooser.addOption("Drive Slightly forward then back", new OtherDumbAuto(driveSubsystem));//Slightly better auto than DumbAuto
   m_autoChooser.addOption("Blue Bottom Auto", new BottomScoreConeCube("BlueBottomIntakeCone", m_autoBuilder, driveSubsystem, intakeSystem, elSubsystem, armSystem));
+  m_autoChooser.addOption("Straight Path", new StraightTest("StraightPath", m_autoBuilder, driveSubsystem, intakeSystem, elSubsystem, armSystem));
   SmartDashboard.putData("Auto choices", m_autoChooser);
   //m_autoChooser.addOption("TestAuto", new TestAuto(m_autoBuilder, DriveTrainSubsystem));
+}
+
+public void autonomousPeriodic(){
+  System.out.println("Left Encoder: " + driveSubsystem.getLeftEncoder());
+  System.out.println("Right Encoder: " + driveSubsystem.getRightEncoder());
 }
   
 
@@ -257,7 +264,10 @@ public void initializeAutoChooser(){
 
     SmartDashboard.putNumber("Drive Left Encoder", driveSubsystem.getLeftEncoder());
     SmartDashboard.putNumber("Drive Right Encoder", driveSubsystem.getRightEncoder());
+    
     SmartDashboard.putNumber("Gyro Angle", driveSubsystem.getHeading());
+   
+   
     //SmartDashboard.putNumber("Encoder Value", elSubsystem.GetElevatorPos());
     //SmartDashboard.putNumber("Encoder Rate", elSubsystem.GetEncoderRate());
     //hi there
