@@ -19,12 +19,9 @@ public class Hopper extends SubsystemBase {
 
 
     public Hopper() {
-
         //I2C arduino = new I2C(i2cPort, 4);
         breakBeam = new DigitalInput(5);
         hoppercam = new PhotonCamera("1197HopperCam");
-        
-
     }
     public void SpinHopper(double speed) {
 		HopperMotor.set(speed);
