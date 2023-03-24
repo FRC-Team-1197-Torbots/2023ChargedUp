@@ -112,7 +112,7 @@ public class RobotContainer {
 
   public void initializeSubsystems(){
     //System.out.println("Pneumatic System initialized");
-    driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX(), player1_HoldButton));
+    driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
     //pneumaticsSystem.setDefaultCommand(runCompressor);
     intakeSystem.setDefaultCommand(new IntakeGamePiece(intakeSystem));
     //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
@@ -158,7 +158,7 @@ public void initializeAutoChooser(){
 }
 
 public void simulationInit(){
-  
+  driveSubsystem.simulationInit();
 }
 
 public void simulationPeriodic(){

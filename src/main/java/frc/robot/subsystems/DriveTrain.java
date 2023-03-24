@@ -18,6 +18,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
@@ -29,6 +30,9 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -52,6 +56,8 @@ public class DriveTrain extends SubsystemBase {
   private CANSparkMax RightBottom2;
 
   private double previousThrottle;
+  private double m_throttle;
+  private double m_steer;
 
   private double leftCurrentSpeed;
   private double rightCurrentSpeed;
@@ -80,7 +86,7 @@ public class DriveTrain extends SubsystemBase {
 
   private PIDController pidDrive;
 
-  
+  private DifferentialDriveKinematics m_DriveKinematics = new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidthMeters);
   private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(AutoDriveConstants.ksVolts, 
   AutoDriveConstants.kVoltSecondPerMeter, 
   AutoDriveConstants.kVoltSecondSquaredPerMeter);
@@ -97,6 +103,14 @@ public class DriveTrain extends SubsystemBase {
   //private AnalogGyroSim gyroSim;
   private final LinearSystem<N2, N2, N2> m_drivetrainSystem;
   private final DifferentialDrivetrainSim m_drivetrainSimulator;
+  private final PIDController m_leftPIDController = new PIDController(8.5, 0, 0);
+  private final PIDController m_rightPIDController = new PIDController(8.5, 0, 0);
+  private final MotorControllerGroup leftMotorControllerGroup;
+  private final MotorControllerGroup rightMotorControllerGroup;
+  //private MotorController[] leftMotorArray = {LeftTop, LeftBottom1, LeftBottom2};
+  //private MotorController[] rightMotorArray = {RightTop, RightBottom1, RightBottom2};
+  private DifferentialDrive m_Drive; 
+
   //private SimDevice navx_sim;
   int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
   SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
@@ -104,13 +118,6 @@ public class DriveTrain extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   public DriveTrain() {
     //navx_sim = new SimDevice(dev);
-    
-    pigeon = new Pigeon2(0);
-    gyro = new AHRS(SPI.Port.kMXP);
-
-    pidDrive = new PIDController(TeleopDriveConstants.velocitykP, TeleopDriveConstants.velocitykI, TeleopDriveConstants.velocitykD);
-    //m_gyro = new AnalogGyro(0);
-
     LeftTop = new CANSparkMax(DriveTrainConstants.LeftTopID, MotorType.kBrushless);
 		LeftBottom1 = new CANSparkMax(DriveTrainConstants.LeftBottom1ID, MotorType.kBrushless);
 		LeftBottom2 = new CANSparkMax(DriveTrainConstants.LeftBottom2ID, MotorType.kBrushless); 
@@ -118,6 +125,16 @@ public class DriveTrain extends SubsystemBase {
 		RightTop = new CANSparkMax(DriveTrainConstants.RightTopID, MotorType.kBrushless); 
 		RightBottom1 = new CANSparkMax(DriveTrainConstants.RightBottom1ID, MotorType.kBrushless);		
 		RightBottom2 = new CANSparkMax(DriveTrainConstants.RightBottom2ID, MotorType.kBrushless);
+
+    leftMotorControllerGroup = new MotorControllerGroup(LeftTop, LeftBottom1, LeftBottom2);
+    rightMotorControllerGroup = new MotorControllerGroup(RightTop, RightBottom1, RightBottom2);
+    m_Drive = new DifferentialDrive(LeftBottom1, RightTop);
+    
+    pigeon = new Pigeon2(0);
+    gyro = new AHRS(SPI.Port.kMXP);
+
+    pidDrive = new PIDController(TeleopDriveConstants.velocitykP, TeleopDriveConstants.velocitykI, TeleopDriveConstants.velocitykD);
+    //m_gyro = new AnalogGyro(0);
 
     //driveSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
 
@@ -138,7 +155,7 @@ public class DriveTrain extends SubsystemBase {
     m_drivetrainSystem = LinearSystemId.identifyDrivetrainSystem(1.98, 0.2, 1.5, 0.3);
     m_drivetrainSimulator =
     new DifferentialDrivetrainSim(
-        m_drivetrainSystem, DCMotor.getCIM(2), 8, DriveTrainConstants.kTrackWidthMeters, DriveTrainConstants.kWheelRadiusInches, null);
+        m_drivetrainSystem, DCMotor.getNeo550(6), 8, DriveTrainConstants.kTrackWidthMeters, DriveTrainConstants.kWheelRadiusInches, null);
     leftEncoderSim = new EncoderSim(leftEncoder);
     rightEncoderSim = new EncoderSim(rightEncoder);
     //gyroSim = new AnalogGyroSim(m_gyro);
@@ -152,13 +169,18 @@ public class DriveTrain extends SubsystemBase {
    */
 
   public void Drive(double throttle, double steer){
+    //System.out.println("Throttle: " + throttle);
+    setMotorSpeeds(m_DriveKinematics.toWheelSpeeds(new ChassisSpeeds(throttle, 0, steer)));
+    /* 
+    m_throttle = throttle;
+    m_steer = steer;
     double sign = Math.signum(throttle);
-  throttle = sign * Math.pow(throttle, 2);
+    m_throttle = sign * Math.pow(throttle, 2);
   //System.out.println("Throttle: " + throttle);
 
  
- sign = Math.signum(steer);
-  steer = sign * Math.pow(steer, 2);// * TeleopDriveConstants.STEER_SCALAR;  
+  sign = Math.signum(steer);
+  m_steer = sign * Math.pow(steer, 2);// * TeleopDriveConstants.STEER_SCALAR;  
   //System.out.println("Steer: " + steer);
 
      if(Math.abs(throttle) < 0.025f) {
@@ -184,7 +206,7 @@ public class DriveTrain extends SubsystemBase {
 
       if (throttle < previousThrottle && Math.abs(throttle - previousThrottle) > TeleopDriveConstants.MAX_DECEL) {
           throttle = previousThrottle - TeleopDriveConstants.MAX_DECEL;
-      }*/
+      }
 
       if(throttle > 1) {
           throttle = 1;
@@ -195,7 +217,7 @@ public class DriveTrain extends SubsystemBase {
       }
 
 
-      previousThrottle = throttle;
+      //previousThrottle = throttle;
       
       throttle = -throttle;
 
@@ -236,16 +258,16 @@ public class DriveTrain extends SubsystemBase {
     leftTargetSpeed = settingLeftSpeed; //* TeleopDriveConstants.MAX_VELOCITY;
     rightTargetSpeed = settingRightSpeed; //* TeleopDriveConstants.MAX_VELOCITY;
 
-    leftOutput = 0.5; //= pidDrive.calculate(leftTargetSpeed - leftCurrentSpeed);
-    rightOutput = 0.5;//= pidDrive.calculate(rightTargetSpeed - rightCurrentSpeed);
+    leftOutput = leftSpeed; //= pidDrive.calculate(leftTargetSpeed - leftCurrentSpeed);
+    rightOutput = rightspeed;//= pidDrive.calculate(rightTargetSpeed - rightCurrentSpeed);
 
-    System.out.println("Left output: " + leftOutput);
+    //System.out.println("Left output: " + rightOutput);
     if (Math.abs(leftOutput) < 0.01 && Math.abs(rightOutput) < 0.01) {
           setMotorSpeeds(0, 0);
     }
     else {
           setMotorSpeeds(-leftOutput, -rightOutput);
-    }
+    }*/
 
     
   }
@@ -278,6 +300,22 @@ public class DriveTrain extends SubsystemBase {
     RightBottom2.setIdleMode(IdleMode.kCoast);
   }
 */
+  public void setMotorSpeeds(DifferentialDriveWheelSpeeds speeds){
+    var leftFeedforward = feedForward.calculate(speeds.leftMetersPerSecond);
+    var rightFeedforward = feedForward.calculate(speeds.rightMetersPerSecond);
+    System.out.println(leftEncoder.getRate());
+    double leftOutput =
+        m_leftPIDController.calculate(leftEncoder.getRate(), speeds.leftMetersPerSecond);
+    double rightOutput =
+        m_rightPIDController.calculate(rightEncoder.getRate(), speeds.rightMetersPerSecond);
+        //System.out.println("Left Output: " + (leftOutput + leftFeedforward));
+
+    leftMotorControllerGroup.setVoltage(leftOutput + leftFeedforward);
+    rightMotorControllerGroup.setVoltage(rightOutput + rightFeedforward);
+
+    //setLeftVoltage(leftOutput + leftFeedforward);
+    //setRightVoltage(rightOutput + rightFeedforward);
+  }
   public double getRightVelocity() {
     return rightEncoder.getRate();
   }
@@ -317,8 +355,11 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void resetOdometry(Pose2d pose){
-    resetEncoder();
-    m_odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), pose);
+    leftEncoder.reset();
+    rightEncoder.reset();
+    m_drivetrainSimulator.setPose(pose);
+    m_odometry.resetPosition(
+        gyro.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance(), pose);
   }
 
   public DifferentialDriveWheelSpeeds getWheelSpeeds(){
@@ -351,16 +392,13 @@ public class DriveTrain extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     //System.out.println("Signal");
-    
-    //m_odometry.update(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder());
 
     SmartDashboard.putNumber("Left Encoder Value Meters: ", getLeftEncoder());
     SmartDashboard.putNumber("Right Encoder Value Meters", getRightEncoder());
     //SmartDashboard.putNumber("Gyro Heading", getHeading());
     //SmartDashboard.putString("Robot Pose", m_field.getRobotPose().toString());
-
+    updateOdometry();
     m_field.setRobotPose(m_odometry.getPoseMeters());
-    m_field.setRobotPose(getPose());
     //m_field.getObject("traj").setTrajectory(PathPlanner.loadPath("BlueBottomIntakeCone", 2, 2));
 
   }
@@ -374,8 +412,11 @@ public class DriveTrain extends SubsystemBase {
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
     REVPhysicsSim.getInstance().run();
-    m_drivetrainSimulator.setInputs(LeftTop.get() * RobotController.getInputCurrent(),
-    RightTop.get() * RobotController.getInputCurrent());
+    //System.out.println(RobotController.getInputCurrent());
+    System.out.println(leftMotorControllerGroup.get());
+    //System.out.println("Left top: " + LeftTop.get());
+    m_drivetrainSimulator.setInputs(leftMotorControllerGroup.get() * RobotController.getInputVoltage(),
+     rightMotorControllerGroup.get() * RobotController.getInputVoltage());
     m_drivetrainSimulator.update(.02);
     leftEncoderSim.setDistance(m_drivetrainSimulator.getLeftPositionMeters());
     leftEncoderSim.setRate(m_drivetrainSimulator.getLeftVelocityMetersPerSecond());
@@ -387,9 +428,16 @@ public class DriveTrain extends SubsystemBase {
     //System.out.println(dev);
     //System.out.println("Angle" + angle.get());
     angle.set(m_drivetrainSimulator.getHeading().getDegrees());
-    System.out.println(getPose());
+    //setOdometry(pose);
+    m_field.setRobotPose(m_odometry.getPoseMeters());
+    //System.out.println(getPose());
     //angle.set(50);
     //m_field.setRobotPose(getPose());
+  }
+
+  public void updateOdometry() {
+    m_odometry.update(
+        gyro.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance());
   }
   
   // Method to reset the encoder values
@@ -418,8 +466,10 @@ public class DriveTrain extends SubsystemBase {
 	}
 
   public void setMotorSpeeds(double leftSpeed, double rightSpeed){
-    SetLeft(leftSpeed);
-    SetRight(rightSpeed);
+    setLeftVoltage(leftSpeed);
+    setRightVoltage(rightSpeed);
+    //SetLeft(leftSpeed);
+    //SetRight(rightSpeed);
   }
 /* 
   public void shiftToLowGear() {

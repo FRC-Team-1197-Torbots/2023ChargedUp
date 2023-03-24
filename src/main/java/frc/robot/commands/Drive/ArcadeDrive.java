@@ -31,9 +31,9 @@ public class ArcadeDrive extends CommandBase {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ArcadeDrive(DriveTrain subsystem, DoubleSupplier throttleInput, DoubleSupplier steerInput, XboxController player1) {
+  public ArcadeDrive(DriveTrain subsystem, DoubleSupplier throttleInput, DoubleSupplier steerInput) {
     driveSubsystem = subsystem;
-    m_player1 = player1;
+    //m_player1 = player1;
     m_throttle = throttleInput;
     m_steer = steerInput;
     // Use addRequirements() here to declare subsystem dependencies.
