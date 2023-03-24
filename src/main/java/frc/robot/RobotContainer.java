@@ -157,6 +157,14 @@ public void initializeAutoChooser(){
   //m_autoChooser.addOption("TestAuto", new TestAuto(m_autoBuilder, DriveTrainSubsystem));
 }
 
+public void simulationInit(){
+  
+}
+
+public void simulationPeriodic(){
+  driveSubsystem.simulationPeriodic();
+}
+
 public void autonomousPeriodic(){
   System.out.println("Left Encoder: " + driveSubsystem.getLeftEncoder());
   System.out.println("Right Encoder: " + driveSubsystem.getRightEncoder());

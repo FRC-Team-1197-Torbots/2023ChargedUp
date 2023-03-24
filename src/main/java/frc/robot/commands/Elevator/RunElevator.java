@@ -65,7 +65,7 @@ public class RunElevator extends CommandBase{
     
     public void execute(){//remember to commment out runarm before testing elevator pid
         //currentPosition = elevator.GetElevatorPos();
-        System.out.println("Current Position: "+ currentPosition + " target Position: " + target + " elevator Output: " + elevatorOutput);
+        //System.out.println("Current Position: "+ currentPosition + " target Position: " + target + " elevator Output: " + elevatorOutput);
         SmartDashboard.putNumber("Elevator Position", currentPosition);
         elevatorOutput = elevatorPID.calculate(target - currentPosition);
         // if(elevatorOutput > 0.25){

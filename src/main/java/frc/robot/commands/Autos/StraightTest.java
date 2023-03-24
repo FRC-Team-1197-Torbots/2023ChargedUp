@@ -32,7 +32,7 @@ public class StraightTest extends SequentialCommandGroup{
 
             var autoPath = autoBuilder.fullAuto(pathTrajectory);
             addCommands(new SetAuto(pathName, pathTrajectory), autoPath,  
-            new SetMotorMode(driveTrain, IdleMode.kBrake).andThen(() -> driveTrain.AutoDriveMotor(0, 0))
+            new SetMotorMode(driveTrain, IdleMode.kBrake).andThen(() -> driveTrain.Drive(0, 0))
             );
         }
     

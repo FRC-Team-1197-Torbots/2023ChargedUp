@@ -8,6 +8,7 @@ import com.ctre.phoenix.sensors.Pigeon2;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.PathPlanner;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVPhysicsSim;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -15,6 +16,7 @@ import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -39,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AutoDriveConstants;
 import frc.robot.Constants.DriveTrainConstants;
+import frc.robot.Constants.TeleopDriveConstants;
 import frc.robot.commands.Drive.ArcadeDrive;
 
 public class DriveTrain extends SubsystemBase {
@@ -52,6 +55,20 @@ public class DriveTrain extends SubsystemBase {
   private CANSparkMax RightBottom1;
   private CANSparkMax RightBottom2;
 
+  private double previousThrottle;
+
+  private double leftCurrentSpeed;
+  private double rightCurrentSpeed;
+
+
+  private double leftSpeed;
+  private double rightspeed;
+  private double leftTargetSpeed;
+  private double rightTargetSpeed;
+
+  private double leftOutput;
+  private double rightOutput;
+
   //public static Solenoid driveSolenoid;
   public static Compressor compressor;
 
@@ -64,6 +81,8 @@ public class DriveTrain extends SubsystemBase {
   private final DifferentialDrivePoseEstimator poseEstimator;
   private Pigeon2 pigeon;
   private final Field2d m_field = new Field2d();
+
+  private PIDController pidDrive;
 
   
   private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(AutoDriveConstants.ksVolts, 
@@ -91,6 +110,8 @@ public class DriveTrain extends SubsystemBase {
     
     pigeon = new Pigeon2(0);
     gyro = new AHRS(SPI.Port.kMXP);
+
+    pidDrive = new PIDController(TeleopDriveConstants.velocitykP, TeleopDriveConstants.velocitykI, TeleopDriveConstants.velocitykD);
     //m_gyro = new AnalogGyro(0);
 
     LeftTop = new CANSparkMax(DriveTrainConstants.LeftTopID, MotorType.kBrushless);
@@ -143,8 +164,103 @@ public class DriveTrain extends SubsystemBase {
    * @return a command
    */
 
-  public void AutoDriveMotor(double throttle, double steer){
-    setMotorSpeeds(throttle, steer);
+  public void Drive(double throttle, double steer){
+    double sign = Math.signum(throttle);
+  throttle = sign * Math.pow(throttle, 2);
+  //System.out.println("Throttle: " + throttle);
+
+ 
+ sign = Math.signum(steer);
+  steer = sign * Math.pow(steer, 2);// * TeleopDriveConstants.STEER_SCALAR;  
+  //System.out.println("Steer: " + steer);
+
+     if(Math.abs(throttle) < 0.025f) {
+          throttle = 0;
+     }
+
+     if(Math.abs(steer) < 0.035f) {
+         steer = 0;
+     }
+
+     double rightspeed = 0, leftSpeed = 0;
+
+     /* 
+     if (throttle > previousThrottle) {
+         if (previousThrottle> 0)
+              throttle = previousThrottle + TeleopDriveConstants.POSRANGE_MAX_ACCEL;
+          else{                
+              throttle = previousThrottle + TeleopDriveConstants.NEGRANGE_MAX_ACCEL;
+              //System.out.println("Throttle " + throttle);
+          }
+              
+      }
+
+      if (throttle < previousThrottle && Math.abs(throttle - previousThrottle) > TeleopDriveConstants.MAX_DECEL) {
+          throttle = previousThrottle - TeleopDriveConstants.MAX_DECEL;
+      }*/
+
+      if(throttle > 1) {
+          throttle = 1;
+      }
+
+      if(throttle < -1) {
+          throttle = -1;
+      }
+
+
+      previousThrottle = throttle;
+      
+      throttle = -throttle;
+
+     if(throttle > 0) {
+         if(steer > 0) {
+             leftSpeed = throttle - steer;
+             rightspeed = Math.max(throttle, steer);
+         } else {
+             leftSpeed = Math.max(throttle, -steer);
+             rightspeed = throttle + steer;
+         }
+     } else {
+         if(steer > 0) {
+             leftSpeed = -Math.max(-throttle, steer);
+             rightspeed = throttle + steer;
+         } else {
+             leftSpeed = throttle - steer;
+             rightspeed = -Math.max(-throttle, -steer);
+         }
+     }
+
+      double settingLeftSpeed = leftSpeed, settingRightSpeed = rightspeed;
+
+      if(Math.abs(settingLeftSpeed) < 0.05) {
+          settingLeftSpeed = 0;
+      }
+
+      if(Math.abs(settingRightSpeed) < 0.05) {
+          settingRightSpeed = 0;
+      }
+
+    leftCurrentSpeed = getLeftVelocity();
+    rightCurrentSpeed = getRightVelocity();
+
+    //System.out.println("Left Encoder: " + getLeftEncoder());
+    //System.out.println("Right Encoder: " + getRightEncoder());
+
+    leftTargetSpeed = settingLeftSpeed; //* TeleopDriveConstants.MAX_VELOCITY;
+    rightTargetSpeed = settingRightSpeed; //* TeleopDriveConstants.MAX_VELOCITY;
+
+    leftOutput = 0.5; //= pidDrive.calculate(leftTargetSpeed - leftCurrentSpeed);
+    rightOutput = 0.5;//= pidDrive.calculate(rightTargetSpeed - rightCurrentSpeed);
+
+    System.out.println("Left output: " + leftOutput);
+    if (Math.abs(leftOutput) < 0.01 && Math.abs(rightOutput) < 0.01) {
+          setMotorSpeeds(0, 0);
+    }
+    else {
+          setMotorSpeeds(-leftOutput, -rightOutput);
+    }
+
+    
   }
 
   public void setMotorState(IdleMode mode){
@@ -262,9 +378,15 @@ public class DriveTrain extends SubsystemBase {
 
   }
 
+  public void simulationInit(){
+    REVPhysicsSim.getInstance().addSparkMax(LeftTop, DCMotor.getNEO(1));
+    REVPhysicsSim.getInstance().addSparkMax(RightTop, DCMotor.getNEO(1));
+  }
+
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
+    REVPhysicsSim.getInstance().run();
     driveSim.setInputs(LeftTop.get() * RobotController.getInputCurrent(),
     RightTop.get() * RobotController.getInputCurrent());
     driveSim.update(.02);
@@ -277,9 +399,10 @@ public class DriveTrain extends SubsystemBase {
     //gyroSim.setAngle(driveSim.getHeading().getDegrees());
     //System.out.println(dev);
     //System.out.println("Angle" + angle.get());
-    //angle.set(driveSim.getHeading().getDegrees());
-    angle.set(50);
-    m_field.setRobotPose(getPose());
+    angle.set(driveSim.getHeading().getDegrees());
+    System.out.println(getPose());
+    //angle.set(50);
+    //m_field.setRobotPose(getPose());
   }
   
   // Method to reset the encoder values
