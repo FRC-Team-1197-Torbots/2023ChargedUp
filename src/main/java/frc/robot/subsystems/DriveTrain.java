@@ -6,16 +6,13 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.PathPlanner;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.REVPhysicsSim;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.REVPhysicsSim;
 
-import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
@@ -24,15 +21,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -99,7 +95,8 @@ public class DriveTrain extends SubsystemBase {
   static final double KaAngular = 0.3;
   //private AnalogGyro m_gyro;
   //private AnalogGyroSim gyroSim;
-  private DifferentialDrivetrainSim driveSim;
+  private final LinearSystem<N2, N2, N2> m_drivetrainSystem;
+  private final DifferentialDrivetrainSim m_drivetrainSimulator;
   //private SimDevice navx_sim;
   int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
   SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
@@ -138,20 +135,10 @@ public class DriveTrain extends SubsystemBase {
     m_odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), new Pose2d());
 
     //Simulation Initializing
-    driveSim = new DifferentialDrivetrainSim(
-      // Create a linear system from our identification gains.
-      LinearSystemId.identifyDrivetrainSystem(KvLinear, KaLinear, KvAngular, KaAngular),
-      DCMotor.getNEO(6),       // 2 NEO motors on each side of the drivetrain.
-      7.29,                    // 7.29:1 gearing reduction.
-      0.91,                  // The track width is 0.7112 meters.
-      Units.inchesToMeters(3), // The robot uses 3" radius wheels.
-    
-      // The standard deviations for measurement noise:
-      // x and y:          0.001 m
-      // heading:          0.001 rad
-      // l and r velocity: 0.1   m/s
-      // l and r position: 0.005 m
-      VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
+    m_drivetrainSystem = LinearSystemId.identifyDrivetrainSystem(1.98, 0.2, 1.5, 0.3);
+    m_drivetrainSimulator =
+    new DifferentialDrivetrainSim(
+        m_drivetrainSystem, DCMotor.getCIM(2), 8, DriveTrainConstants.kTrackWidthMeters, DriveTrainConstants.kWheelRadiusInches, null);
     leftEncoderSim = new EncoderSim(leftEncoder);
     rightEncoderSim = new EncoderSim(rightEncoder);
     //gyroSim = new AnalogGyroSim(m_gyro);
@@ -387,19 +374,19 @@ public class DriveTrain extends SubsystemBase {
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
     REVPhysicsSim.getInstance().run();
-    driveSim.setInputs(LeftTop.get() * RobotController.getInputCurrent(),
+    m_drivetrainSimulator.setInputs(LeftTop.get() * RobotController.getInputCurrent(),
     RightTop.get() * RobotController.getInputCurrent());
-    driveSim.update(.02);
-    leftEncoderSim.setDistance(driveSim.getLeftPositionMeters());
-    leftEncoderSim.setRate(driveSim.getLeftVelocityMetersPerSecond());
-    rightEncoderSim.setDistance(driveSim.getRightPositionMeters());
-    rightEncoderSim.setRate(driveSim.getRightVelocityMetersPerSecond());
+    m_drivetrainSimulator.update(.02);
+    leftEncoderSim.setDistance(m_drivetrainSimulator.getLeftPositionMeters());
+    leftEncoderSim.setRate(m_drivetrainSimulator.getLeftVelocityMetersPerSecond());
+    rightEncoderSim.setDistance(m_drivetrainSimulator.getRightPositionMeters());
+    rightEncoderSim.setRate(m_drivetrainSimulator.getRightVelocityMetersPerSecond());
     //SmartDashboard.putNumber("Left Encoder Sim: ", leftEncoderSim.getDistance());
     //SmartDashboard.putNumber("Right Encoder Sim: ", rightEncoderSim.getDistance());
     //gyroSim.setAngle(driveSim.getHeading().getDegrees());
     //System.out.println(dev);
     //System.out.println("Angle" + angle.get());
-    angle.set(driveSim.getHeading().getDegrees());
+    angle.set(m_drivetrainSimulator.getHeading().getDegrees());
     System.out.println(getPose());
     //angle.set(50);
     //m_field.setRobotPose(getPose());
