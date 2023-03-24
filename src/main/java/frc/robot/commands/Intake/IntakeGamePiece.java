@@ -6,6 +6,7 @@ import frc.robot.subsystems.Intake;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 public class IntakeGamePiece extends CommandBase {
+
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Intake intakeSystem;
    
@@ -13,9 +14,15 @@ public class IntakeGamePiece extends CommandBase {
     private double conespeed;
     private double cubespeed;
     private boolean state;
+    
+    public static enum HopperPiece{
+        CONE, CUBE
+    }
     private enum IntakeState{
         UP, DOWN
     }
+
+    public static HopperPiece m_HopperState;
     private IntakeState m_IntakeState;
     //private GamePiece m_gamePiece;
     public IntakeGamePiece(Intake subsystem){//, GamePiece gamePiece){

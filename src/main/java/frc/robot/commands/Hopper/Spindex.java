@@ -1,21 +1,22 @@
 package frc.robot.commands.Hopper;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+// import java.io.IOException;
+// import java.net.DatagramPacket;
+// import java.net.DatagramSocket;
+// import java.net.InetAddress;
+// import java.net.SocketException;
 
-import org.photonvision.PhotonCamera;
+// import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 //import com.revrobotics.ColorSensorV3.RawColor;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+// import frc.robot.Constants.ElevatorArmConstants.GamePiece;
+import frc.robot.commands.Intake.IntakeGamePiece;
+import frc.robot.commands.Intake.IntakeGamePiece.HopperPiece;
 import frc.robot.subsystems.Hopper;
-
-
 
 public class Spindex extends CommandBase {
 
@@ -25,7 +26,10 @@ public class Spindex extends CommandBase {
     public static enum moveHopper{
       IDLE, CONE
     }
+    public boolean oriented;
+
     private moveHopper HopperState;
+
     public Spindex(Hopper subsystem) {
         hopperSubsystem = subsystem;
         HopperState= moveHopper.IDLE;
@@ -38,12 +42,48 @@ public class Spindex extends CommandBase {
     @Override
     public void execute() {
 
-      hopperSubsystem.hoppercam.setPipelineIndex(0);
+      Hopper.hoppercam.setPipelineIndex(0);
+
+      var camresult = Hopper.hoppercam.getLatestResult();
+    
+      switch(HopperState){
+        case IDLE:
+        hopperSubsystem.SpinHopper(0);
+        break;
+
+        case CONE:
+        if(camresult.hasTargets()){
+          PhotonTrackedTarget camtarget = camresult.getBestTarget();
+          double skew = camtarget.getSkew();
+          if(-20 <= skew && skew <= 20){
+            hopperSubsystem.SpinHopper(0);
+            oriented = true;
+
+          }
+          else{
+            hopperSubsystem.SpinHopper(0.6);
+            oriented = false;
+          }
+        }
+        else{
+          hopperSubsystem.SpinHopper(0.6);
+          oriented = false;
+        }
+        break;
+      }
+
+      if(IntakeGamePiece.m_HopperState == HopperPiece.CONE){
+        HopperState = moveHopper.CONE;
+      }
+      else{
+        HopperState = moveHopper.IDLE;
+      }
+      SmartDashboard.putBoolean("Cone oriented",oriented);
+      SmartDashboard.putBoolean("Breakbeam",Hopper.breakBeam.get());
 
       //byte[] ledsignal = {0x00}; //
 
       //get what limelight sees. if a target is detected, it's a cone
-      var camresult = hopperSubsystem.hoppercam.getLatestResult();
       /*
       if (camresult.hasTargets()){
         PhotonTrackedTarget camtarget = camresult.getBestTarget();
@@ -61,27 +101,7 @@ public class Spindex extends CommandBase {
         SmartDashboard.putString("status", "No object found");
       }
       */
-    
-      switch(HopperState){
-        case IDLE:
-        hopperSubsystem.SpinHopper(0);
-        break;
 
-        case CONE:
-        while(camresult.hasTargets()){
-          //SmartDashboard.putString("status","Cone found");
-          PhotonTrackedTarget camtarget = camresult.getBestTarget();
-          double skew = camtarget.getSkew();
-          if(-20 <= skew && skew <= 20){
-            hopperSubsystem.SpinHopper(0);
-
-          }
-          else{
-            hopperSubsystem.SpinHopper(.6);
-          }
-        }
-        break;
-      }
         //Color color = hopperSubsystem.colorsensor.getColor();
         
         //int red = rawcolor.red;
@@ -164,32 +184,8 @@ public class Spindex extends CommandBase {
       colorString = "None";
       System.out.println("i saw a nothing!");
     }
-*/
-    SmartDashboard.putBoolean("Breakbeam",hopperSubsystem.breakBeam.get());
-                                                                                        //SmartDashboard.putNumber("Hopper Position", hopperSubsystem )
+*/ //SmartDashboard.putNumber("Hopper Position", hopperSubsystem )
 
-    //int SERVICE_PORT = 8888;
-/*
-    try{
-      
-      DatagramSocket clientSocket = new DatagramSocket();
-      
-      // Get the IP address of the server
-      InetAddress IPAddress = InetAddress.getByName("10.11.97.77");
-      
-      // Creating a UDP packet 
-      //DatagramPacket sendingPacket = new DatagramPacket(ledsignal,ledsignal.length,IPAddress, SERVICE_PORT);
-      
-      // sending UDP packet to the server
-      clientSocket.send(sendingPacket);
-      
-      // Closing the socket connection with the server
-      clientSocket.close();
-    }
-      catch(IOException e) {
-      e.printStackTrace();
-    }
-*/
     //SmartDashboard.putString("Object", colorString);
     }
 
