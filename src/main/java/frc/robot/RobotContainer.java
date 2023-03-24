@@ -116,7 +116,7 @@ public class RobotContainer {
     //pneumaticsSystem.setDefaultCommand(runCompressor);
     intakeSystem.setDefaultCommand(new IntakeGamePiece(intakeSystem));
     //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
-    //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem));
+    elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem));
     //armSystem.setDefaultCommand(new RunArm(armSystem));
     clawSystem.setDefaultCommand(new RunClaw(clawSystem));
 

@@ -26,15 +26,15 @@ public class RunArm extends CommandBase{
     private Boolean StateAchieved = false;
     //private MoveElevatorArm moveArm;
     public static enum MoveArm{
-        UP,DOWN
+        UP,DOWN, IDLE
     }
-    private MoveArm ArmState;
+    public static MoveArm ArmState;
 
     public RunArm(Arm armSystem){//, XboxController player2, Elevator elevatorSystem, double speed){
         arm = armSystem;
         //claw = clawSystem;
         //m_player2 = player2;
-        ArmState= MoveArm.DOWN;
+        ArmState= MoveArm.IDLE;
         //elevator = elevatorSystem;
         //elevatorPID = new PIDController(0, 0, 0);
         addRequirements(armSystem);//, //elevatorSystem);
@@ -65,7 +65,8 @@ public class RunArm extends CommandBase{
         }*/
         switch(ArmState){
             case DOWN:
-            while(arm.GetPotValue()<=0.98){
+            System.out.println("arm going down");
+            /*while(arm.GetPotValue()<=0.98){
                 if(arm.GetPotValue()>=0.9){
                     arm.SetArmSpeed(0.2);
                     StateAchieved=false;
@@ -77,21 +78,21 @@ public class RunArm extends CommandBase{
                 else{
                     arm.SetArmSpeed(0.4);}
                     StateAchieved=false;
-                }
+                }*/
                 
         
-            /*
+            
             if(arm.GetPotValue()>=0.98){
                 arm.SetArmSpeed(0.015);
             }
-            else{*
+            else{
             arm.SetArmSpeed(0.4);
-            }*/
+            }
                
                 //System.out.println("switch down");
                 break;
             case UP:
-            while(arm.GetPotValue()>=0.6285){
+            /*while(arm.GetPotValue()>=0.6285){
                 if(arm.GetPotValue()<=0.7){
                     arm.SetArmSpeed(-0.2);
                     StateAchieved=false;
@@ -104,19 +105,21 @@ public class RunArm extends CommandBase{
                     arm.SetArmSpeed(-0.3);}
                     StateAchieved=false;
                 }
-            /*
+                break;*/
+                System.out.println("Arm going up");
                 if(arm.GetPotValue()<=0.6285){
                     arm.SetArmSpeed(-0.01);
                 }
                 else{
                 arm.SetArmSpeed(-0.3);
                 }
-                //System.out.println("Switch up");*/
                 break;
-            /*case IDLE:
+                //System.out.println("Switch up");
+                
+            case IDLE:
                 arm.SetArmSpeed(-0.01);
-                //System.out.println("Switch Idle");
-                break;*/
+                System.out.println("Switch Idle");
+                break;
         }
         //System.out.println("Encoder value " + elevator.GetEncoderValue());
         //System.out.println("Encoder rate " + elevator.GetEncoderRate());

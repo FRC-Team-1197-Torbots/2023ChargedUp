@@ -47,13 +47,13 @@ public class IntakeGamePiece extends CommandBase {
         switch(m_IntakeState){
             case UP:
                 state = true;
-                intakeSystem.SetSolenoid(state);
+                //intakeSystem.SetSolenoid(state);
                 //System.out.println("intake running");
                 intakeSystem.SetRollerSpeed(0);
                 break;
             case DOWN:
                 state = false;
-                intakeSystem.SetSolenoid(state);
+                //intakeSystem.SetSolenoid(state);
                 //System.out.println("intake off");
                 intakeSystem.SetRollerSpeed(0.45);
                 break;

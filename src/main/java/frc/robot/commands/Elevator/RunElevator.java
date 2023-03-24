@@ -11,7 +11,9 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Intake;
 import frc.robot.commands.Arm.RunArm;
+import frc.robot.commands.Arm.RunArm.MoveArm;
 
 public class RunElevator extends CommandBase{
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -37,43 +39,47 @@ public class RunElevator extends CommandBase{
     public static enum IntakeorScore{
         INTAKE, SCORE, IDLE
     }
-    private ElevatorState ElState;
+    //private ElevatorState ElState;
     private IntakeorScore m_IntakeorScore;
     private double target;
     private double elevatorOutput;
     private double maxOutput;
     private boolean targetReached;
     public RunElevator(Arm armSystem, Claw clawSystem, Elevator elevatorSystem){
-        ElState = ElevatorState.IDLE;
-        m_IntakeorScore = IntakeorScore.INTAKE;
+        //ElState = ElevatorState.IDLE;
+        m_IntakeorScore = IntakeorScore.IDLE;
+        
         arm = armSystem;
         claw = clawSystem;
         elevator = elevatorSystem;
-        elevatorPID = new PIDController(0.001, 0, 0);
+        elevatorPID = new PIDController(0.0001, 0, 0.0005);
         //m_player1 = player1;
         addRequirements(elevatorSystem);
     }
     @Override
     public void initialize() {
         elevator.ResetEncoder();
+        currentPosition=0;
     }
     @Override
     
-    public void execute(){
-        //System.out.println(elevator.GetElevatorPos());
-        SmartDashboard.putNumber("Elevator Position", elevator.GetElevatorPos());
+    public void execute(){//remember to commment out runarm before testing elevator pid
+        //currentPosition = elevator.GetElevatorPos();
+        System.out.println("Current Position: "+ currentPosition + " target Position: " + target + " elevator Output: " + elevatorOutput);
+        SmartDashboard.putNumber("Elevator Position", currentPosition);
         elevatorOutput = elevatorPID.calculate(target - currentPosition);
-        if(elevatorOutput > 0.25){
-            elevatorOutput = 0.25;
-        }
-        elevator.SetElevatorSpeed(elevatorOutput);
+        // if(elevatorOutput > 0.25){
+        //     elevatorOutput = 0.25;
+        // }
+        elevator.SetElevatorSpeed(-elevatorOutput);
         if (Math.abs(target-currentPosition)<=20){
             targetReached=true;
         }
         else{
             targetReached=false;
         }
-        if(RobotContainer.player2_HoldButton.getPOV() == 0){
+        SmartDashboard.putBoolean("Elevator Target Reached?", targetReached);
+        /*if(RobotContainer.player2_HoldButton.getPOV() == 0){
             if(m_IntakeorScore == IntakeorScore.IDLE){
                 m_IntakeorScore = IntakeorScore.INTAKE;
             }
@@ -94,13 +100,36 @@ public class RunElevator extends CommandBase{
             else if(m_IntakeorScore == IntakeorScore.INTAKE){
                 m_IntakeorScore = IntakeorScore.IDLE;
             }
+        }*/
+        if(RobotContainer.player2_HoldButton.getYButtonPressed()){
+            m_IntakeorScore=IntakeorScore.SCORE;
         }
-        // if(targetReached==true && (m_IntakeorScore==IntakeorScore.SCORE || m_IntakeorScore==IntakeorScore.INTAKE )){
-        //     Arm.
+        if(RobotContainer.player2_HoldButton.getBButtonPressed()){
+            m_IntakeorScore=IntakeorScore.INTAKE;
+        }
+        if(RobotContainer.player2_HoldButton.getAButtonPressed()){
+            m_IntakeorScore=IntakeorScore.IDLE;
+        }
+        // if(RobotContainer.player2_HoldButton.getPOV() == 0){
+        //     currentPosition+=15;
+        // }
+        // if(RobotContainer.player2_HoldButton.getPOV() == 180){
+        //     currentPosition-=15;
+        // }        
+        // if(elevatorOutput<0 && m_IntakeorScore==IntakeorScore.IDLE){
+        //     RunArm.ArmState= MoveArm.DOWN;
+        // }else if(targetReached==true && (m_IntakeorScore==IntakeorScore.SCORE || m_IntakeorScore==IntakeorScore.INTAKE )){
+        //     RunArm.ArmState = MoveArm.UP; 
+        // }else{
+        //     elevator.SetElevatorSpeed(-elevatorOutput);
+        //     RunArm.ArmState = MoveArm.IDLE;
+        // }
+
+
         // }
         /* 
         if(RobotContainer.player2_HoldButton.getYButtonPressed()){
-            ElState = ElevatorState.UP;
+            ElState = Elev atorState.UP;
         }
         else if(RobotContainer.player2_HoldButton.getAButtonPressed()){
             ElState = ElevatorState.DOWN;
