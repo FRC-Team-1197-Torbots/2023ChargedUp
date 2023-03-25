@@ -59,7 +59,36 @@ public void execute() {
     */
   throttle = m_throttle.getAsDouble();
   steer = m_steer.getAsDouble();
-  driveSubsystem.Drive(throttle, steer);
+  double sign = Math.signum(throttle);
+  throttle = sign * Math.pow(throttle, 2);
+  sign = Math.signum(steer);
+  steer = sign * Math.pow(steer, 2);
+  if(Math.abs(throttle) < 0.025f) {
+    throttle = 0;
+  }
+
+  if(Math.abs(steer) < 0.035f) {
+   steer = 0;
+  }
+  double leftSpeed, rightspeed;
+  if(throttle > 0) {
+    if(steer > 0) {
+        leftSpeed = throttle - steer;
+        rightspeed = Math.max(throttle, steer);
+    } else {
+        leftSpeed = Math.max(throttle, -steer);
+        rightspeed = throttle + steer;
+    }
+} else {
+    if(steer > 0) {
+        leftSpeed = -Math.max(-throttle, steer);
+        rightspeed = throttle + steer;
+    } else {
+        leftSpeed = throttle - steer;
+        rightspeed = -Math.max(-throttle, -steer);
+    }
+}
+  driveSubsystem.Drive(leftSpeed, rightspeed);
   
   }
 

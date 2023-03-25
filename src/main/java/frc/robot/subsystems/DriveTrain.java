@@ -103,8 +103,8 @@ public class DriveTrain extends SubsystemBase {
   //private AnalogGyroSim gyroSim;
   private final LinearSystem<N2, N2, N2> m_drivetrainSystem;
   private final DifferentialDrivetrainSim m_drivetrainSimulator;
-  private final PIDController m_leftPIDController = new PIDController(8.5, 0, 0);
-  private final PIDController m_rightPIDController = new PIDController(8.5, 0, 0);
+  private final PIDController m_leftPIDController = new PIDController(0.00001, 0, 0);
+  private final PIDController m_rightPIDController = new PIDController(0.00001, 0, 0);
   private final MotorControllerGroup leftMotorControllerGroup;
   private final MotorControllerGroup rightMotorControllerGroup;
   //private MotorController[] leftMotorArray = {LeftTop, LeftBottom1, LeftBottom2};
@@ -130,7 +130,7 @@ public class DriveTrain extends SubsystemBase {
     rightMotorControllerGroup = new MotorControllerGroup(RightTop, RightBottom1, RightBottom2);
     m_Drive = new DifferentialDrive(LeftBottom1, RightTop);
     
-    pigeon = new Pigeon2(0);
+    pigeon = new Pigeon2(1);
     gyro = new AHRS(SPI.Port.kMXP);
 
     pidDrive = new PIDController(TeleopDriveConstants.velocitykP, TeleopDriveConstants.velocitykI, TeleopDriveConstants.velocitykD);
@@ -158,8 +158,17 @@ public class DriveTrain extends SubsystemBase {
         m_drivetrainSystem, DCMotor.getNeo550(6), 8, DriveTrainConstants.kTrackWidthMeters, DriveTrainConstants.kWheelRadiusInches, null);
     leftEncoderSim = new EncoderSim(leftEncoder);
     rightEncoderSim = new EncoderSim(rightEncoder);
+    //pigeon.zeroGyroBiasNow()
+    pigeon.configFactoryDefault();
+    pigeon.setYaw(0);
     //gyroSim = new AnalogGyroSim(m_gyro);
     
+  }
+
+  public void setpigeon(){
+    System.out.println("Pigeon Pitch: " + pigeon.getPitch() + 
+    "Pigeon Yaw: " + pigeon.getYaw() + 
+    "Pigeon Roll: " + pigeon.getRoll());
   }
 
   /**
@@ -169,8 +178,17 @@ public class DriveTrain extends SubsystemBase {
    */
 
   public void Drive(double throttle, double steer){
+    leftCurrentSpeed = getLeftVelocity();
+    rightCurrentSpeed = getRightVelocity();
+    leftTargetSpeed = throttle * TeleopDriveConstants.MAX_VELOCITY;
+    rightTargetSpeed = steer * TeleopDriveConstants.MAX_VELOCITY;
+    leftOutput = m_leftPIDController.calculate(leftTargetSpeed);
+    rightOutput = m_rightPIDController.calculate(rightTargetSpeed);
     //System.out.println("Throttle: " + throttle);
-    setMotorSpeeds(m_DriveKinematics.toWheelSpeeds(new ChassisSpeeds(throttle, 0, steer)));
+
+    System.out.println("Left Output: " + leftOutput);
+    System.out.println("Right Output: " + rightOutput);
+    setMotorSpeeds(leftOutput, rightOutput);
     /* 
     m_throttle = throttle;
     m_steer = steer;
@@ -300,18 +318,21 @@ public class DriveTrain extends SubsystemBase {
     RightBottom2.setIdleMode(IdleMode.kCoast);
   }
 */
-  public void setMotorSpeeds(DifferentialDriveWheelSpeeds speeds){
-    var leftFeedforward = feedForward.calculate(speeds.leftMetersPerSecond);
-    var rightFeedforward = feedForward.calculate(speeds.rightMetersPerSecond);
-    System.out.println(leftEncoder.getRate());
-    double leftOutput =
-        m_leftPIDController.calculate(leftEncoder.getRate(), speeds.leftMetersPerSecond);
-    double rightOutput =
-        m_rightPIDController.calculate(rightEncoder.getRate(), speeds.rightMetersPerSecond);
-        //System.out.println("Left Output: " + (leftOutput + leftFeedforward));
+  public void setMotorSpeeds(double leftOutput, double rightOutput){
+    //var leftFeedforward = feedForward.calculate(speeds.leftMetersPerSecond);
+    //var rightFeedforward = feedForward.calculate(speeds.rightMetersPerSecond);
+    //System.out.println(leftEncoder.getRate());
+    //System.out.println("Left encoder: " + leftEncoder.getRate());
+    //double leftOutput = m_leftPIDController.calculate(leftEncoder.getRate(), speeds.leftMetersPerSecond);
+    //double rightOutput = m_rightPIDController.calculate(rightEncoder.getRate(), speeds.rightMetersPerSecond);
+    //System.out.println("Left Output: " + (leftOutput + leftFeedforward));
+        //System.out.println(leftOutput);
 
-    leftMotorControllerGroup.setVoltage(leftOutput + leftFeedforward);
-    rightMotorControllerGroup.setVoltage(rightOutput + rightFeedforward);
+    leftMotorControllerGroup.set(leftOutput);
+    rightMotorControllerGroup.set(rightOutput);
+
+    //leftMotorControllerGroup.set(leftOutput + leftFeedforward);
+    //rightMotorControllerGroup.set(rightOutput + rightFeedforward);
 
     //setLeftVoltage(leftOutput + leftFeedforward);
     //setRightVoltage(rightOutput + rightFeedforward);
@@ -397,6 +418,7 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putNumber("Right Encoder Value Meters", getRightEncoder());
     //SmartDashboard.putNumber("Gyro Heading", getHeading());
     //SmartDashboard.putString("Robot Pose", m_field.getRobotPose().toString());
+    setpigeon();
     updateOdometry();
     m_field.setRobotPose(m_odometry.getPoseMeters());
     //m_field.getObject("traj").setTrajectory(PathPlanner.loadPath("BlueBottomIntakeCone", 2, 2));
@@ -413,7 +435,7 @@ public class DriveTrain extends SubsystemBase {
     // This method will be called once per scheduler run during simulation
     REVPhysicsSim.getInstance().run();
     //System.out.println(RobotController.getInputCurrent());
-    System.out.println(leftMotorControllerGroup.get());
+    //System.out.println(leftMotorControllerGroup.get());
     //System.out.println("Left top: " + LeftTop.get());
     m_drivetrainSimulator.setInputs(leftMotorControllerGroup.get() * RobotController.getInputVoltage(),
      rightMotorControllerGroup.get() * RobotController.getInputVoltage());
@@ -464,13 +486,6 @@ public class DriveTrain extends SubsystemBase {
 		RightBottom1.set(-speed);
 		RightBottom2.set(-speed);
 	}
-
-  public void setMotorSpeeds(double leftSpeed, double rightSpeed){
-    setLeftVoltage(leftSpeed);
-    setRightVoltage(rightSpeed);
-    //SetLeft(leftSpeed);
-    //SetRight(rightSpeed);
-  }
 /* 
   public void shiftToLowGear() {
 		driveSolenoid.set(true);

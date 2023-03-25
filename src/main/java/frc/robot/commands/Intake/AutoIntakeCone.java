@@ -25,7 +25,7 @@ public class AutoIntakeCone extends CommandBase {
     }
     @Override
     public void execute(){
-        intakeSystem.SetRollerSpeed(conespeed);
+        intakeSystem.SetRollerSpeed(conespeed, 0);
         intakeSystem.SetSolenoid(value);
     }
     @Override

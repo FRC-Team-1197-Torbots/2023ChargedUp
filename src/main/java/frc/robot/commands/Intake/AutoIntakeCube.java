@@ -26,7 +26,7 @@ public class AutoIntakeCube extends CommandBase {
     @Override
     public void execute(){
         intakeSystem.SetSolenoid(value);
-        intakeSystem.SetRollerSpeed(cubespeed);
+        intakeSystem.SetRollerSpeed(cubespeed, 0);
     }
     @Override
     public void end(boolean interrupted) {

@@ -3,6 +3,7 @@ package frc.robot.commands.Intake;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.ElevatorArmConstants.GamePiece;
 import frc.robot.subsystems.Intake;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 public class IntakeGamePiece extends CommandBase {
@@ -54,15 +55,18 @@ public class IntakeGamePiece extends CommandBase {
         switch(m_IntakeState){
             case UP:
                 state = true;
-                //intakeSystem.SetSolenoid(state);
+                intakeSystem.SetRollerSpeed(0, 0);
+                Timer.delay(0.5);
+                intakeSystem.SetSolenoid(state);
                 //System.out.println("intake running");
-                intakeSystem.SetRollerSpeed(0);
                 break;
             case DOWN:
                 state = false;
-                //intakeSystem.SetSolenoid(state);
+                intakeSystem.SetSolenoid(state);
+                Timer.delay(0.5);
                 //System.out.println("intake off");
-                intakeSystem.SetRollerSpeed(0.45);
+                intakeSystem.SetRollerSpeed(0.5, 0.6);//Cube speed: top = 0.5, bot = 0.6
+                 
                 break;
         }
             

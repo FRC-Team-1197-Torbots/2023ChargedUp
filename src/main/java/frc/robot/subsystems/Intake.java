@@ -31,9 +31,9 @@ public class Intake extends SubsystemBase{
         return IntakeEncoder.get();
     }
     */
-    public void SetRollerSpeed(double speed){
-        RollerBottom.set(speed);
-        RollerTop.set(-speed);
+    public void SetRollerSpeed(double topspeed, double botspeed){
+        RollerBottom.set(botspeed);
+        RollerTop.set(-topspeed);
     }
     
     public void SetSolenoid(boolean value){

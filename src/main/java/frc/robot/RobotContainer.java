@@ -113,12 +113,12 @@ public class RobotContainer {
   public void initializeSubsystems(){
     //System.out.println("Pneumatic System initialized");
     driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
-    //pneumaticsSystem.setDefaultCommand(runCompressor);
+    pneumaticsSystem.setDefaultCommand(new RunCompressor(pneumaticsSystem));
     intakeSystem.setDefaultCommand(new IntakeGamePiece(intakeSystem));
     //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
     elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem));
     //armSystem.setDefaultCommand(new RunArm(armSystem));
-    clawSystem.setDefaultCommand(new RunClaw(clawSystem));
+    //clawSystem.setDefaultCommand(new RunClaw(clawSystem));
 
     CameraServer.startAutomaticCapture();
   }
