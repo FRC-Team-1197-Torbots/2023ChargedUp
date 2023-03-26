@@ -37,7 +37,7 @@ public final class Constants {
     public static final double POSRANGE_MAX_ACCEL = 0.04;//0.02;//0.03;//0.08;
     public static final double NEGRANGE_MAX_ACCEL = 0.06;//0.03;//0.02;//0.03;
     public static final double MAX_DECEL = 0.03;//0.04;//0.06;
-    public static final double MAX_VELOCITY = 75000f;//50000f;//45000f; //28000 //39000 // 34,000 // 39,000
+    public static final double MAX_VELOCITY = 15000f;//50000f;//45000f; //28000 //39000 // 34,000 // 39,000
     
     public static final double velocitykP = 0.0000125;// velocity stuff probably not needed at all and should keep 0
     public static final double velocitykI = 0.0;
@@ -48,6 +48,9 @@ public final class Constants {
     public static final int Intake1ID = 9;
     public static final int Intake2ID = 10;
     public static final int HopperID = 8;
+    public static final int BreakBeamPort = 3;
+    public static final int HopperEncoderA = 6;
+    public static final int HopperEncoderB = 7;
   }
 
   public static class AutoDriveConstants{
@@ -76,10 +79,10 @@ public final class Constants {
     public static final int ElMotor2ID = 6;
     public static final int ArmID = 11;
     public static final int ClawID = 14;
-    public static final int limitSwitch1Port = 8;
-    public static final int limitSwitch2Port = 9;
-    public static final int armSwitch1Port = 2;
-    public static final int armSwitch2Port = 3;
+    public static final int limitSwitch1Port = 6;
+    public static final int limitSwitch2Port = 7;
+    //public static final int armSwitch1Port = 2;
+    //public static final int armSwitch2Port = 3;
     public static final double EL_IDLE_POSITION = 0;
     public static final double EL_INTAKE_POSITION = -4500;
     public static final double EL_GRAB_POSITION = 0;

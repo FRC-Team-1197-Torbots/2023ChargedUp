@@ -67,6 +67,8 @@ public class DriveTrain extends SubsystemBase {
   private double rightspeed;
   private double leftTargetSpeed;
   private double rightTargetSpeed;
+  private double lefterror;
+  private double righterror;
 
   private double leftOutput;
   private double rightOutput;
@@ -103,13 +105,13 @@ public class DriveTrain extends SubsystemBase {
   //private AnalogGyroSim gyroSim;
   private final LinearSystem<N2, N2, N2> m_drivetrainSystem;
   private final DifferentialDrivetrainSim m_drivetrainSimulator;
-  private final PIDController m_leftPIDController = new PIDController(0.00001, 0, 0);
-  private final PIDController m_rightPIDController = new PIDController(0.00001, 0, 0);
+  private final PIDController m_leftPIDController = new PIDController(0.00001, 0, 0.000000000);
+  private final PIDController m_rightPIDController = new PIDController(0.00001, 0, 0.000000000);
   private final MotorControllerGroup leftMotorControllerGroup;
   private final MotorControllerGroup rightMotorControllerGroup;
   //private MotorController[] leftMotorArray = {LeftTop, LeftBottom1, LeftBottom2};
   //private MotorController[] rightMotorArray = {RightTop, RightBottom1, RightBottom2};
-  private DifferentialDrive m_Drive; 
+  //private DifferentialDrive m_Drive; 
 
   //private SimDevice navx_sim;
   int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
@@ -128,7 +130,7 @@ public class DriveTrain extends SubsystemBase {
 
     leftMotorControllerGroup = new MotorControllerGroup(LeftTop, LeftBottom1, LeftBottom2);
     rightMotorControllerGroup = new MotorControllerGroup(RightTop, RightBottom1, RightBottom2);
-    m_Drive = new DifferentialDrive(LeftBottom1, RightTop);
+    //m_Drive = new DifferentialDrive(LeftBottom1, RightTop);
     
     pigeon = new Pigeon2(1);
     gyro = new AHRS(SPI.Port.kMXP);
@@ -138,7 +140,7 @@ public class DriveTrain extends SubsystemBase {
 
     //driveSolenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
 
-    leftEncoder = new Encoder(6, 7, false, Encoder.EncodingType.k4X);
+    leftEncoder = new Encoder(8, 9, false, Encoder.EncodingType.k4X);
 		rightEncoder = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
 
     //rightEncoder.
@@ -166,9 +168,9 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void setpigeon(){
-    System.out.println("Pigeon Pitch: " + pigeon.getPitch() + 
-    "Pigeon Yaw: " + pigeon.getYaw() + 
-    "Pigeon Roll: " + pigeon.getRoll());
+    // System.out.println("Pigeon Pitch: " + pigeon.getPitch() + 
+    // "Pigeon Yaw: " + pigeon.getYaw() + 
+    // "Pigeon Roll: " + pigeon.getRoll());
   }
 
   /**
@@ -178,12 +180,31 @@ public class DriveTrain extends SubsystemBase {
    */
 
   public void Drive(double throttle, double steer){
+    double leftsign;
+    double rightsign;
+
     leftCurrentSpeed = getLeftVelocity();
+    //System.out.println("Left Position: " + leftEncoder.getRaw());
+    //System.out.println("Right Position: " + rightEncoder.getRaw());
     rightCurrentSpeed = getRightVelocity();
+    System.out.println("Left Speed: " + leftCurrentSpeed);
+    System.out.println("Right Speed: " + rightCurrentSpeed);
     leftTargetSpeed = throttle * TeleopDriveConstants.MAX_VELOCITY;
     rightTargetSpeed = steer * TeleopDriveConstants.MAX_VELOCITY;
-    leftOutput = m_leftPIDController.calculate(leftTargetSpeed);
-    rightOutput = m_rightPIDController.calculate(rightTargetSpeed);
+    lefterror = leftTargetSpeed - leftCurrentSpeed;
+    righterror = rightTargetSpeed - rightCurrentSpeed;
+
+    if(Math.abs(lefterror) > 75000f && Math.abs(leftCurrentSpeed) < 75000f){
+      leftsign = Math.signum(lefterror);
+      lefterror = leftsign * 75000;
+    }
+    if(Math.abs(righterror) > 75000f && Math.abs(rightCurrentSpeed) < 75000f){
+      rightsign = Math.signum(righterror);
+      righterror = rightsign * 75000;
+    }
+    System.out.println("Error: " + lefterror + " " + righterror);
+    leftOutput = m_leftPIDController.calculate(lefterror);
+    rightOutput = m_rightPIDController.calculate(righterror);
     //System.out.println("Throttle: " + throttle);
 
     System.out.println("Left Output: " + leftOutput);
@@ -327,9 +348,11 @@ public class DriveTrain extends SubsystemBase {
     //double rightOutput = m_rightPIDController.calculate(rightEncoder.getRate(), speeds.rightMetersPerSecond);
     //System.out.println("Left Output: " + (leftOutput + leftFeedforward));
         //System.out.println(leftOutput);
+      SetLeft(leftOutput);
+      SetRight(rightOutput);
 
-    leftMotorControllerGroup.set(leftOutput);
-    rightMotorControllerGroup.set(rightOutput);
+    //leftMotorControllerGroup.set(leftOutput);
+    //rightMotorControllerGroup.set(rightOutput);
 
     //leftMotorControllerGroup.set(leftOutput + leftFeedforward);
     //rightMotorControllerGroup.set(rightOutput + rightFeedforward);
@@ -438,7 +461,7 @@ public class DriveTrain extends SubsystemBase {
     //System.out.println(leftMotorControllerGroup.get());
     //System.out.println("Left top: " + LeftTop.get());
     m_drivetrainSimulator.setInputs(leftMotorControllerGroup.get() * RobotController.getInputVoltage(),
-     rightMotorControllerGroup.get() * RobotController.getInputVoltage());
+    rightMotorControllerGroup.get() * RobotController.getInputVoltage());
     m_drivetrainSimulator.update(.02);
     leftEncoderSim.setDistance(m_drivetrainSimulator.getLeftPositionMeters());
     leftEncoderSim.setRate(m_drivetrainSimulator.getLeftVelocityMetersPerSecond());
@@ -483,6 +506,7 @@ public class DriveTrain extends SubsystemBase {
 	// Setting the right master Talon's speed to the given parameter
 	public void SetRight(double speed) {
 		RightTop.set(-speed); //in correct setting, but "software fix"		
+    //System.out.println("Right output current: " + RightTop.getOutputCurrent());
 		RightBottom1.set(-speed);
 		RightBottom2.set(-speed);
 	}

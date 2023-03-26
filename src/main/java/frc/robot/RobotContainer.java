@@ -8,61 +8,38 @@ import frc.robot.Constants.AutoDriveConstants;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.TeleopDriveConstants;
 import frc.robot.Constants.ElevatorArmConstants.GamePiece;
-import frc.robot.Constants.ElevatorArmConstants.STATE;
-import frc.robot.Constants.ElevatorArmConstants.TARGET;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Hopper;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.RamseteAutoBuilder;
+import com.revrobotics.CANSparkMax.IdleMode;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryUtil;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Pneumatics;
-import frc.robot.commands.Arm.RunArm;
 import frc.robot.commands.Autos.BottomScoreConeCube;
 //import frc.robot.commands.Autos.DoNothing;
 import frc.robot.commands.Autos.DumbAuto;
 import frc.robot.commands.Autos.OtherDumbAuto;
 import frc.robot.commands.Autos.StraightTest;
-//import frc.robot.commands.Autos.TestAuto;
-import frc.robot.commands.Claw.RunClaw;
 import frc.robot.commands.Drive.ArcadeDrive;
 import frc.robot.commands.Elevator.RunElevator;
-import frc.robot.commands.Elevator.SetElevatorState;
-import frc.robot.commands.Intake.AutoIntakeCone;
-import frc.robot.commands.Intake.AutoIntakeCube;
+import frc.robot.commands.Hopper.Spindex;
 import frc.robot.commands.Intake.IntakeGamePiece;
-import frc.robot.commands.Intake.SetIntakeMode;
 import frc.robot.commands.Pneumatics.RunCompressor;
 
 /**
@@ -89,6 +66,7 @@ public class RobotContainer {
   private final Arm armSystem = new Arm();
   private final Claw clawSystem = new Claw();
   private final Intake intakeSystem = new Intake();
+  private final Hopper hopperSubsystem = new Hopper();
   private final Pneumatics pneumaticsSystem = new Pneumatics();
   //private RunCompressor runCompressor = new RunCompressor(pneumaticsSystem);
   //private ArcadeDrive arcadeDrive = new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftY());
@@ -117,10 +95,11 @@ public class RobotContainer {
     intakeSystem.setDefaultCommand(new IntakeGamePiece(intakeSystem));
     //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
     elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem));
+    hopperSubsystem.setDefaultCommand(new Spindex(hopperSubsystem));
     //armSystem.setDefaultCommand(new RunArm(armSystem));
     //clawSystem.setDefaultCommand(new RunClaw(clawSystem));
 
-    CameraServer.startAutomaticCapture();
+    //CameraServer.startAutomaticCapture();
   }
 
   private void initAutoBuilder() {
@@ -212,6 +191,16 @@ public void autonomousPeriodic(){
     return m_autoChooser.getSelected();
   }
 
+  public void disabledInit(){
+    driveSubsystem.setMotorState(IdleMode.kCoast);
+    intakeSystem.SetSolenoid(false);
+  }
+
+  public void disabledPeriodic(){
+    //System.out.println("DISABLED!!!!!!!!!!!!!!!!!");
+    //intakeSystem.SetSolenoid(false);
+  }
+
   public void testPeriodic(){
 
     if(player1_HoldButton.getAButton()){// A1 drive forward
@@ -229,7 +218,7 @@ public void autonomousPeriodic(){
     if(player1_HoldButton.getYButtonPressed()){//Y1 Arm U
       armSystem.SetArmSpeed(-0.2);
     }  
-    
+    /* 
     if(player2_HoldButton.getAButtonPressed()){//A2 Elevator Up
       System.out.println(elSubsystem.TopSwitch());
       if(elSubsystem.TopSwitch()){
@@ -240,6 +229,7 @@ public void autonomousPeriodic(){
         elSubsystem.SetElevatorSpeed(0.2);
       }
     }
+    */
     if(player2_HoldButton.getXButtonPressed()){//X2 Elevator Down
       System.out.println("going down");
       elSubsystem.SetElevatorSpeed(-0.2);
@@ -259,6 +249,7 @@ public void autonomousPeriodic(){
       //clawSystem.SetClawSpeed(-0.35);
       clawSystem.dropClaw();
     }
+    
 
     switch(m_IntakeState){
       case UP:

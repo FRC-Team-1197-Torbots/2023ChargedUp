@@ -8,6 +8,8 @@ import frc.robot.subsystems.DriveTrain;
 
 import java.util.function.DoubleSupplier;
 
+import com.revrobotics.CANSparkMax.IdleMode;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -42,7 +44,9 @@ public class ArcadeDrive extends CommandBase {
 
 // Called when the command is initially scheduled.
 @Override
-public void initialize() {}
+public void initialize() {
+  driveSubsystem.setMotorState(IdleMode.kBrake);
+}
 
 // Called every time the scheduler runs while the command is scheduled.
 @Override
@@ -57,12 +61,14 @@ public void execute() {
         driveSubsystem.shiftToHighGear();
     }
     */
+  
   throttle = m_throttle.getAsDouble();
   steer = m_steer.getAsDouble();
   double sign = Math.signum(throttle);
   throttle = sign * Math.pow(throttle, 2);
   sign = Math.signum(steer);
   steer = sign * Math.pow(steer, 2);
+  steer = -steer;
   if(Math.abs(throttle) < 0.025f) {
     throttle = 0;
   }
@@ -88,7 +94,16 @@ public void execute() {
         rightspeed = -Math.max(-throttle, -steer);
     }
 }
+
+// System.out.println("Left speed: " + leftSpeed);
+// System.out.println("Right Speed: " + rightspeed);
+// System.out.println("Left Encoder rate: " + driveSubsystem.getLeftVelocity());
+// System.out.println("Right Encoder rate: " + driveSubsystem.getRightVelocity());
+
+  //driveSubsystem.SetLeft(leftSpeed);
+  //driveSubsystem.SetRight(rightspeed);
   driveSubsystem.Drive(leftSpeed, rightspeed);
+  
   
   }
 

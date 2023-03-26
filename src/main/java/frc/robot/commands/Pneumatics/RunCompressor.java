@@ -9,13 +9,12 @@ public class RunCompressor extends CommandBase{
     public RunCompressor(Pneumatics pneumatics){
         m_Pneumatics = pneumatics;
         addRequirements(m_Pneumatics);
-
+        m_Pneumatics.startCompressor();
     }
 
     @Override
     public void execute(){
-        //System.out.println("Running Compressor");
-        m_Pneumatics.startCompressor();
+        //System.out.println("Running Compressor");        
     }
 
     

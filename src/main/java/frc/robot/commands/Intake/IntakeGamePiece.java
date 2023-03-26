@@ -52,8 +52,13 @@ public class IntakeGamePiece extends CommandBase {
                 m_IntakeState = IntakeState.DOWN;
             }
         }
+        if(RobotContainer.player2_HoldButton.getLeftTriggerAxis() >0.5){
+            //System.out.println("bumper pressed");
+            m_HopperState = HopperPiece.CONE;
+        }
         switch(m_IntakeState){
             case UP:
+                //System.out.println("Intake up");
                 state = true;
                 intakeSystem.SetRollerSpeed(0, 0);
                 Timer.delay(0.5);
@@ -61,6 +66,7 @@ public class IntakeGamePiece extends CommandBase {
                 //System.out.println("intake running");
                 break;
             case DOWN:
+                //System.out.println("Intake down");
                 state = false;
                 intakeSystem.SetSolenoid(state);
                 Timer.delay(0.5);

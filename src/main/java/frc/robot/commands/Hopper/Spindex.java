@@ -32,7 +32,7 @@ public class Spindex extends CommandBase {
 
     public Spindex(Hopper subsystem) {
         hopperSubsystem = subsystem;
-        HopperState= moveHopper.IDLE;
+        HopperState= moveHopper.CONE;
         
         addRequirements(subsystem);
     }
@@ -41,18 +41,20 @@ public class Spindex extends CommandBase {
 
     @Override
     public void execute() {
-
+      System.out.println("Hopper running");
       Hopper.hoppercam.setPipelineIndex(0);
 
       var camresult = Hopper.hoppercam.getLatestResult();
-    
+      //hopperSubsystem.SpinHopper(0.6);
       switch(HopperState){
         case IDLE:
         hopperSubsystem.SpinHopper(0);
+        System.out.println("HopperState Idle");
         break;
 
         case CONE:
         if(camresult.hasTargets()){
+          System.out.println("Limelight has target");
           PhotonTrackedTarget camtarget = camresult.getBestTarget();
           double skew = camtarget.getSkew();
           if(-20 <= skew && skew <= 20){
@@ -61,22 +63,25 @@ public class Spindex extends CommandBase {
 
           }
           else{
-            hopperSubsystem.SpinHopper(0.6);
+            hopperSubsystem.SpinHopper(0.35);
             oriented = false;
           }
         }
         else{
-          hopperSubsystem.SpinHopper(0.6);
+          System.out.println("Hopper spinning");
+          hopperSubsystem.SpinHopper(0.35
+          );
           oriented = false;
         }
         break;
       }
 
       if(IntakeGamePiece.m_HopperState == HopperPiece.CONE){
+        //System.out.println("Hopper set to Cone");
         HopperState = moveHopper.CONE;
       }
       else{
-        HopperState = moveHopper.IDLE;
+        //HopperState = moveHopper.IDLE;
       }
       SmartDashboard.putBoolean("Cone oriented",oriented);
       SmartDashboard.putBoolean("Breakbeam",Hopper.breakBeam.get());

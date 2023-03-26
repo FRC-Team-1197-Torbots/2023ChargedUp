@@ -25,8 +25,8 @@ public class Arm extends SubsystemBase{
 
     public Arm(){
         //armMotor = new CANSparkMax(ElevatorArmConstants.ArmID, MotorType.kBrushless);
-        armSwitch1 = new DigitalInput(ElevatorArmConstants.armSwitch1Port);
-        armSwitch2 = new DigitalInput(ElevatorArmConstants.armSwitch2Port);
+        //armSwitch1 = new DigitalInput(ElevatorArmConstants.armSwitch1Port);
+        //armSwitch2 = new DigitalInput(ElevatorArmConstants.armSwitch2Port);
         armMotor1 = new CANSparkMax(ElevatorArmConstants.ArmID, MotorType.kBrushless);
         armPot = new AnalogPotentiometer(0);
         armMotor1.setIdleMode(IdleMode.kBrake);
