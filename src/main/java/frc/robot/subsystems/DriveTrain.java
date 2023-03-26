@@ -26,6 +26,7 @@ import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
@@ -88,7 +89,7 @@ public class DriveTrain extends SubsystemBase {
 
   private PIDController pidDrive;
 
-  private DifferentialDriveKinematics m_DriveKinematics = new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidthMeters);
+  private DifferentialDriveKinematics m_DriveKinematics = new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidth);
   private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(AutoDriveConstants.ksVolts, 
   AutoDriveConstants.kVoltSecondPerMeter, 
   AutoDriveConstants.kVoltSecondSquaredPerMeter);
@@ -101,6 +102,8 @@ public class DriveTrain extends SubsystemBase {
   static final double KaLinear = 0.2;
   static final double KvAngular = 1.5;
   static final double KaAngular = 0.3;
+
+  private double m_simYaw;
   //private AnalogGyro m_gyro;
   //private AnalogGyroSim gyroSim;
   private final LinearSystem<N2, N2, N2> m_drivetrainSystem;
@@ -157,7 +160,7 @@ public class DriveTrain extends SubsystemBase {
     m_drivetrainSystem = LinearSystemId.identifyDrivetrainSystem(1.98, 0.2, 1.5, 0.3);
     m_drivetrainSimulator =
     new DifferentialDrivetrainSim(
-        m_drivetrainSystem, DCMotor.getNeo550(6), 8, DriveTrainConstants.kTrackWidthMeters, DriveTrainConstants.kWheelRadiusInches, null);
+        m_drivetrainSystem, DCMotor.getNeo550(6), 8, DriveTrainConstants.kTrackWidth, DriveTrainConstants.kWheelRadiusInches, null);
     leftEncoderSim = new EncoderSim(leftEncoder);
     rightEncoderSim = new EncoderSim(rightEncoder);
     //pigeon.zeroGyroBiasNow()
@@ -394,8 +397,16 @@ public class DriveTrain extends SubsystemBase {
 
 
   public void setOdometry(Pose2d pose) {
-    gyro.setAngleAdjustment(pose.getRotation().getDegrees());
-    m_odometry.resetPosition(gyro.getRotation2d(), getLeftEncoder(), getRightEncoder(), pose);
+    pigeon.setYaw(pose.getRotation().getDegrees());
+    m_odometry.resetPosition(getHeadingRotation2d(), getLeftEncoder(), getRightEncoder(), pose);
+  }
+
+  public double getHeadingDegrees() {
+    return pigeon.getYaw();
+  }
+
+  public Rotation2d getHeadingRotation2d() {
+    return Rotation2d.fromDegrees(getHeadingDegrees());
   }
 
   public void resetOdometry(Pose2d pose){
@@ -406,8 +417,14 @@ public class DriveTrain extends SubsystemBase {
         gyro.getRotation2d(), leftEncoder.getDistance(), rightEncoder.getDistance(), pose);
   }
 
+  public double EncoderTickstoMeters(double ticks){
+    double ticksInoneInch = 4096f / (Math.PI * 6);
+    return Units.inchesToMeters(ticks / ticksInoneInch);
+  }
+
   public DifferentialDriveWheelSpeeds getWheelSpeeds(){
-    return new DifferentialDriveWheelSpeeds(getLeftVelocity(), getRightVelocity());
+    return new DifferentialDriveWheelSpeeds(EncoderTickstoMeters(getLeftVelocity()), 
+    EncoderTickstoMeters(getRightVelocity()));
   }
 
   public SimpleMotorFeedforward getFeedForward(){
@@ -457,9 +474,8 @@ public class DriveTrain extends SubsystemBase {
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
     REVPhysicsSim.getInstance().run();
-    //System.out.println(RobotController.getInputCurrent());
-    //System.out.println(leftMotorControllerGroup.get());
-    //System.out.println("Left top: " + LeftTop.get());
+    
+    ChassisSpeeds m_ChassisSpeeds = DriveTrainConstants.kDriveKinematics.toChassisSpeeds(getWheelSpeeds());
     m_drivetrainSimulator.setInputs(leftMotorControllerGroup.get() * RobotController.getInputVoltage(),
     rightMotorControllerGroup.get() * RobotController.getInputVoltage());
     m_drivetrainSimulator.update(.02);
@@ -472,7 +488,8 @@ public class DriveTrain extends SubsystemBase {
     //gyroSim.setAngle(driveSim.getHeading().getDegrees());
     //System.out.println(dev);
     //System.out.println("Angle" + angle.get());
-    angle.set(m_drivetrainSimulator.getHeading().getDegrees());
+    m_simYaw += m_ChassisSpeeds.omegaRadiansPerSecond * 0.02;
+    pigeon.getSimCollection().setRawHeading(-Units.radiansToDegrees(m_simYaw));
     //setOdometry(pose);
     m_field.setRobotPose(m_odometry.getPoseMeters());
     //System.out.println(getPose());
@@ -493,8 +510,8 @@ public class DriveTrain extends SubsystemBase {
 
 	// Method to reset the spartan board gyro values
 	public void resetGyro() {
-		gyro.reset();
-    gyro.calibrate(); 
+		pigeon.setYaw(0);
+    pigeon.setAccumZAngle(0);
 	}
 
   public void SetLeft(double speed) {
