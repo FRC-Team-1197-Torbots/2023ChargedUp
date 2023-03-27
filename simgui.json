@@ -22,7 +22,8 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Auto choices": "String Chooser",
-      "/SmartDashboard/Field 2D": "Field2d"
+      "/SmartDashboard/Field 2D": "Field2d",
+      "/SmartDashboard/Scheduler": "Scheduler"
     },
     "windows": {
       "/SmartDashboard/Auto choices": {

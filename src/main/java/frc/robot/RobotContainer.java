@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -38,8 +39,11 @@ import frc.robot.commands.Autos.OtherDumbAuto;
 import frc.robot.commands.Autos.StraightTest;
 import frc.robot.commands.Drive.ArcadeDrive;
 import frc.robot.commands.Elevator.RunElevator;
+import frc.robot.commands.Elevator.RunElevator.LEVEL;
 import frc.robot.commands.Hopper.Spindex;
 import frc.robot.commands.Intake.IntakeGamePiece;
+import frc.robot.commands.Intake.IntakeOutElevatorDown;
+import frc.robot.commands.Intake.IntakeOutElevatorUp;
 import frc.robot.commands.Pneumatics.RunCompressor;
 
 /**
@@ -103,7 +107,7 @@ public class RobotContainer {
   }
 
   private void initAutoBuilder() {
-    /* 
+    
     eventMap.put("wait", new WaitCommand(5));
     //eventMap.put("IntakeCone", new AutoIntakeCone(intakeSystem, 0.5));
    // eventMap.put("IntakeCube", new AutoIntakeCube(intakeSystem, 0.25));
@@ -114,7 +118,7 @@ public class RobotContainer {
             driveSubsystem::getPose,
             driveSubsystem::resetOdometry,
             new RamseteController(AutoDriveConstants.kRamseteB, AutoDriveConstants.kRamseteZeta),
-            new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidthMeters), 
+            new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidth), 
             driveSubsystem.getFeedForward(),
             driveSubsystem::getWheelSpeeds,
             new PIDConstants(TeleopDriveConstants.velocitykP, TeleopDriveConstants.velocitykI, TeleopDriveConstants.velocitykD),
@@ -123,7 +127,7 @@ public class RobotContainer {
             false, 
             subArray); 
   
-     */         
+           
 }
 
 public void initializeAutoChooser(){
@@ -136,6 +140,11 @@ public void initializeAutoChooser(){
   //m_autoChooser.addOption("TestAuto", new TestAuto(m_autoBuilder, DriveTrainSubsystem));
 }
 
+public void robotInit(){
+  driveSubsystem.resetEncoder();
+  elSubsystem.ResetEncoder();
+}
+
 public void simulationInit(){
   driveSubsystem.simulationInit();
 }
@@ -145,7 +154,7 @@ public void simulationPeriodic(){
 }
 
 public void autonomousInit(){
-  driveSubsystem.resetEncoder();
+  
 }
 
 public void autonomousPeriodic(){
@@ -168,20 +177,9 @@ public void autonomousPeriodic(){
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     
     player1.rightBumper().whileTrue((new IntakeGamePiece(intakeSystem)));
-    //player1.a().onTrue(new RunClaw(clawSystem));
-    //player1.y().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.MIDDLE));
-    //player1.a().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.TOP));
-    
-
-    //player1.leftBumper(null)//(new RunArm(armSystem, clawSystem, 0.2));
-    //player1.pov(0).whileTrue(new RunArm(armSystem, clawSystem, 0.35));//elSubsystem, 0.1));
-    //player1.pov(180).onTrue(new RunArm(armSystem, clawSystem, -0.35));//elSubsystem, -0.1));
-    //player1.b().onTrue(new RunCompressor(pneumaticsSystem));
-    //player2.povUp().onTrue(new SetElevatorState(elSubsystem, TARGET.TOP));
-    //player2.povDown().onTrue(new SetElevatorState(elSubsystem, TARGET.MIDDLE));
-    //player2.y().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CONE));
-    //player2.x().onTrue(new SetIntakeMode(intakeSystem, GamePiece.CUBE));
-    //player1.a().onTrue(new AutoIntakeCone(intakeSystem, 0.2, true));
+    player1.a().onTrue(new ParallelCommandGroup(new IntakeOutElevatorDown(intakeSystem, elSubsystem), new RunElevator(armSystem, clawSystem, elSubsystem, intakeSystem, LEVEL.BOTTOM)));
+    player1.b().onTrue(new ParallelCommandGroup(new IntakeOutElevatorUp(intakeSystem, elSubsystem), new RunElevator(armSystem, clawSystem, elSubsystem, intakeSystem, LEVEL.MIDDLE)));
+    player1.y().onTrue(new ParallelCommandGroup(new IntakeOutElevatorUp(intakeSystem, elSubsystem), new RunElevator(armSystem, clawSystem, elSubsystem, intakeSystem, LEVEL.TOP)));
 
     
   }

@@ -11,11 +11,6 @@ public class IntakeGamePiece extends CommandBase {
 
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Intake intakeSystem;
-   
-    //private double cubespeed;
-    private double conespeed;
-    private double cubespeed;
-    private boolean state;
     
     public static enum HopperPiece{
         CONE, CUBE
@@ -29,36 +24,20 @@ public class IntakeGamePiece extends CommandBase {
     //private GamePiece m_gamePiece;
     public IntakeGamePiece(Intake subsystem){//, GamePiece gamePiece){
         this.intakeSystem = subsystem;
-        state = true;
         m_IntakeState = IntakeState.UP;
-        //m_gamePiece = gamePiece;
         addRequirements(subsystem);
 
     }
 
     @Override
-    public void initialize(){
-        intakeSystem.SetSolenoid(state);
-    }
+    public void initialize(){}
+
     @Override
     public void execute(){
         intakeSystem.SetSolenoid(true);
+        intakeSystem.SetRollerSpeed(0.5, 0.6);
         //System.out.println("Intake Down");
-        //intakeSystem.SetRollerSpeed(0.5, 0.6);
-        /* 
-        if(RobotContainer.player1_HoldButton.getRightBumperPressed()){
-            if(m_IntakeState == IntakeState.DOWN){
-                m_IntakeState = IntakeState.UP;
-            }
-            else{
-                m_IntakeState = IntakeState.DOWN;
-            }
-        }
-        if(RobotContainer.player2_HoldButton.getLeftTriggerAxis() >0.5){
-            //System.out.println("bumper pressed");
-            m_HopperState = HopperPiece.CONE;
-        }
-        */
+        
         /* 
         switch(m_IntakeState){
             case UP:
@@ -80,16 +59,7 @@ public class IntakeGamePiece extends CommandBase {
                 break;
             */
         }
-            
-            
-        
 
-    
-        //else{
-        //intakeSystem.SetRollerSpeed(cubespeed);
-        
-    
-    
 
     @Override
     public void end(boolean interrupted){
