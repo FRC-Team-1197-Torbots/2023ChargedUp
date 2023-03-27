@@ -12,23 +12,27 @@ public class LinearTrajectory extends CommandBase{
     private double targetTime;
     private DriveTrain driveSubsystem;
     private double driveSpeed;
+    private double m_distance;
 
-    public LinearTrajectory(DriveTrain driveSub, double speed, double runTime){
-        elapsedTime = 0;
+    public LinearTrajectory(DriveTrain driveSub, double speed, double distance){
+        //elapsedTime = 0;
+        driveSpeed = speed;
         driveSubsystem = driveSub;
-        targetTime = runTime;
+        m_distance = distance;
+        //targetTime = runTime;
     }
 
     @Override
     public void initialize(){
-        timeInit = Timer.getFPGATimestamp();
+        //timeInit = Timer.getFPGATimestamp();
     }
 
     @Override
     public void execute(){
-        currentTime = Timer.getFPGATimestamp();
-        elapsedTime = currentTime - timeInit;
+        //currentTime = Timer.getFPGATimestamp();
+        //elapsedTime = currentTime - timeInit;
         driveSubsystem.setMotorSpeeds(driveSpeed, driveSpeed);
+        
     }
     @Override
     public void end(boolean interrupted){
@@ -36,7 +40,7 @@ public class LinearTrajectory extends CommandBase{
     }
     @Override
     public boolean isFinished(){
-        return elapsedTime >= targetTime;
+        return (driveSubsystem.getAverageEncoder() > m_distance);
     }
 }
     

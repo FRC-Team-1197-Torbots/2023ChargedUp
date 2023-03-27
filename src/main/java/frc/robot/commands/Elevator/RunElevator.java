@@ -21,6 +21,7 @@ public class RunElevator extends CommandBase{
     private Arm arm;
     private Claw claw;
     private Elevator elevator;
+    private Intake m_intake;
     private PIDController elevatorPID;
     private RunArm Arm;
     private double currentPosition;
@@ -45,10 +46,11 @@ public class RunElevator extends CommandBase{
     private double elevatorOutput;
     private double maxOutput;
     private boolean targetReached;
-    public RunElevator(Arm armSystem, Claw clawSystem, Elevator elevatorSystem){
+    
+    public RunElevator(Arm armSystem, Claw clawSystem, Elevator elevatorSystem, Intake intakeSystem){
         //ElState = ElevatorState.IDLE;
         m_IntakeorScore = IntakeorScore.IDLE;
-        
+        m_intake = intakeSystem;
         arm = armSystem;
         claw = clawSystem;
         elevator = elevatorSystem;
@@ -64,14 +66,14 @@ public class RunElevator extends CommandBase{
     @Override
     
     public void execute(){//remember to commment out runarm before testing elevator pid
-        //currentPosition = elevator.GetElevatorPos();
-        //System.out.println("Current Position: "+ currentPosition + " target Position: " + target + " elevator Output: " + elevatorOutput);
+        currentPosition = elevator.GetElevatorPos();
+        System.out.println("Current Position: "+ currentPosition + " target Position: " + target + " elevator Output: " + elevatorOutput);
         SmartDashboard.putNumber("Elevator Position", currentPosition);
         elevatorOutput = elevatorPID.calculate(target - currentPosition);
         // if(elevatorOutput > 0.25){
         //     elevatorOutput = 0.25;
         // }
-        elevator.SetElevatorSpeed(-elevatorOutput);
+        elevator.SetElevatorSpeed(elevatorOutput);
         if (Math.abs(target-currentPosition)<=20){
             targetReached=true;
         }
@@ -142,12 +144,15 @@ public class RunElevator extends CommandBase{
         */
         switch(m_IntakeorScore){
             case INTAKE:
-                target = -5083;
+                m_intake.SetSolenoid(true);
+                target = 5083;
                 break;
             case SCORE:
-                target = -9400;
+                m_intake.SetSolenoid(true);
+                target = 9400;
                 break;
             case IDLE://comment out if PID doesn't work
+                m_intake.SetSolenoid(true);
                 target = 0;
                 break;
         }

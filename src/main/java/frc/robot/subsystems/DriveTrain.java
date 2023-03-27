@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.AutoDriveConstants;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.TeleopDriveConstants;
@@ -105,10 +106,12 @@ public class DriveTrain extends SubsystemBase {
   //private AnalogGyroSim gyroSim;
   private final LinearSystem<N2, N2, N2> m_drivetrainSystem;
   private final DifferentialDrivetrainSim m_drivetrainSimulator;
-  private final PIDController m_leftPIDController = new PIDController(0.00001, 0, 0.000000000);
-  private final PIDController m_rightPIDController = new PIDController(0.00001, 0, 0.000000000);
+  private final PIDController m_leftPIDController = new PIDController((1.0/17000.0), 0, 0.000000000);
+  private final PIDController m_rightPIDController = new PIDController((1.0/17000.0), 0, 0.000000000);
   private final MotorControllerGroup leftMotorControllerGroup;
   private final MotorControllerGroup rightMotorControllerGroup;
+  private double lefttemp;
+  private double righttemp;
   //private MotorController[] leftMotorArray = {LeftTop, LeftBottom1, LeftBottom2};
   //private MotorController[] rightMotorArray = {RightTop, RightBottom1, RightBottom2};
   //private DifferentialDrive m_Drive; 
@@ -182,34 +185,47 @@ public class DriveTrain extends SubsystemBase {
   public void Drive(double throttle, double steer){
     double leftsign;
     double rightsign;
+    
 
     leftCurrentSpeed = getLeftVelocity();
     //System.out.println("Left Position: " + leftEncoder.getRaw());
     //System.out.println("Right Position: " + rightEncoder.getRaw());
     rightCurrentSpeed = getRightVelocity();
-    System.out.println("Left Speed: " + leftCurrentSpeed);
-    System.out.println("Right Speed: " + rightCurrentSpeed);
+    SmartDashboard.putNumber("Left Velocity: ", leftCurrentSpeed);
+    SmartDashboard.putNumber("Right Velocity: ", rightCurrentSpeed);
+    //System.out.println("Left Speed: " + leftCurrentSpeed);
+    //System.out.println("Right Speed: " + rightCurrentSpeed);
     leftTargetSpeed = throttle * TeleopDriveConstants.MAX_VELOCITY;
     rightTargetSpeed = steer * TeleopDriveConstants.MAX_VELOCITY;
     lefterror = leftTargetSpeed - leftCurrentSpeed;
     righterror = rightTargetSpeed - rightCurrentSpeed;
+    SmartDashboard.putNumber("Left Error", lefterror);
+    SmartDashboard.putNumber("Right Error", righterror);
+    SmartDashboard.putNumber("Left Target", leftTargetSpeed);
+    SmartDashboard.putNumber("Right Target", rightTargetSpeed);
 
-    if(Math.abs(lefterror) > 75000f && Math.abs(leftCurrentSpeed) < 75000f){
-      leftsign = Math.signum(lefterror);
-      lefterror = leftsign * 75000;
-    }
-    if(Math.abs(righterror) > 75000f && Math.abs(rightCurrentSpeed) < 75000f){
-      rightsign = Math.signum(righterror);
-      righterror = rightsign * 75000;
-    }
-    System.out.println("Error: " + lefterror + " " + righterror);
-    leftOutput = m_leftPIDController.calculate(lefterror);
-    rightOutput = m_rightPIDController.calculate(righterror);
+    // if(Math.abs(lefterror) > 75000f && Math.abs(leftCurrentSpeed) < 75000f){
+    //   leftsign = Math.signum(lefterror);
+    //   lefterror = leftsign * 75000;
+    // }
+    // if(Math.abs(righterror) > 75000f && Math.abs(rightCurrentSpeed) < 75000f){
+    //   rightsign = Math.signum(righterror);
+    //   righterror = rightsign * 75000;
+    // }
+    //System.out.println("Error: " + lefterror + " " + righterror);
+    //leftOutput = m_leftPIDController.calculate(lefterror);
+    //rightOutput = m_rightPIDController.calculate(righterror);
     //System.out.println("Throttle: " + throttle);
 
-    System.out.println("Left Output: " + leftOutput);
-    System.out.println("Right Output: " + rightOutput);
-    setMotorSpeeds(leftOutput, rightOutput);
+    righttemp = 0.0000555 * righterror;//(1.0f/17000.0f) * righterror;
+    lefttemp = 0.0000555 * lefterror;//(1.0f/17000.0f) * lefterror;
+
+      SmartDashboard.putNumber("My PID Value", righttemp);
+
+    //System.out.println("Left Output: " + leftOutput);
+    //System.out.println("Right Output: " + rightOutput);
+    //setMotorSpeeds(leftOutput, rightOutput);
+    setMotorSpeeds(throttle, steer);
     /* 
     m_throttle = throttle;
     m_steer = steer;
@@ -346,10 +362,10 @@ public class DriveTrain extends SubsystemBase {
     //System.out.println("Left encoder: " + leftEncoder.getRate());
     //double leftOutput = m_leftPIDController.calculate(leftEncoder.getRate(), speeds.leftMetersPerSecond);
     //double rightOutput = m_rightPIDController.calculate(rightEncoder.getRate(), speeds.rightMetersPerSecond);
-    //System.out.println("Left Output: " + (leftOutput + leftFeedforward));
-        //System.out.println(leftOutput);
-      SetLeft(leftOutput);
-      SetRight(rightOutput);
+    SmartDashboard.putNumber("Left Output: ", leftOutput);
+    SmartDashboard.putNumber("Right Output: ", rightOutput);
+    SetLeft(leftOutput);
+    SetRight(rightOutput);
 
     //leftMotorControllerGroup.set(leftOutput);
     //rightMotorControllerGroup.set(rightOutput);
@@ -365,11 +381,11 @@ public class DriveTrain extends SubsystemBase {
   }
   
   public double getLeftVelocity() {
-    return -leftEncoder.getRate();
+    return leftEncoder.getRate();
   }
   
   public double getLeftEncoder() {
-    return -leftEncoder.getRaw();
+    return leftEncoder.getRaw();
   }
   
   public double getRightEncoder() {

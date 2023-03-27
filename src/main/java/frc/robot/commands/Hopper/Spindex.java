@@ -69,8 +69,7 @@ public class Spindex extends CommandBase {
         }
         else{
           System.out.println("Hopper spinning");
-          hopperSubsystem.SpinHopper(0.35
-          );
+          //hopperSubsystem.SpinHopper(0.35);
           oriented = false;
         }
         break;

@@ -10,7 +10,7 @@ public class DumbAuto extends CommandBase{
 
     //Temporary Auto for the LA Regional
     public DumbAuto(DriveTrain driveTrain){
-        m_LinearTrajectory = new LinearTrajectory(driveTrain, 0.2, 4);
+        m_LinearTrajectory = new LinearTrajectory(driveTrain, 0.2, 5);
         m_LinearTrajectory.execute();
     }
     

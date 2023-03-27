@@ -90,12 +90,12 @@ public class RobotContainer {
 
   public void initializeSubsystems(){
     //System.out.println("Pneumatic System initialized");
-    driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX()));
-    pneumaticsSystem.setDefaultCommand(new RunCompressor(pneumaticsSystem));
-    intakeSystem.setDefaultCommand(new IntakeGamePiece(intakeSystem));
+    driveSubsystem.setDefaultCommand(new ArcadeDrive(driveSubsystem, () -> player1.getLeftY(), () -> player1.getLeftX(), player1_HoldButton));
+    //pneumaticsSystem.setDefaultCommand(new RunCompressor(pneumaticsSystem));
+    //intakeSystem.setDefaultCommand(new IntakeGamePiece(intakeSystem));
     //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.BOTTOM));
-    elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem));
-    hopperSubsystem.setDefaultCommand(new Spindex(hopperSubsystem));
+    //elSubsystem.setDefaultCommand(new RunElevator(armSystem, clawSystem, elSubsystem, intakeSystem));
+    //hopperSubsystem.setDefaultCommand(new Spindex(hopperSubsystem));
     //armSystem.setDefaultCommand(new RunArm(armSystem));
     //clawSystem.setDefaultCommand(new RunClaw(clawSystem));
 
@@ -103,7 +103,7 @@ public class RobotContainer {
   }
 
   private void initAutoBuilder() {
-    
+    /* 
     eventMap.put("wait", new WaitCommand(5));
     //eventMap.put("IntakeCone", new AutoIntakeCone(intakeSystem, 0.5));
    // eventMap.put("IntakeCube", new AutoIntakeCube(intakeSystem, 0.25));
@@ -123,12 +123,12 @@ public class RobotContainer {
             false, 
             subArray); 
   
-              
+     */         
 }
 
 public void initializeAutoChooser(){
   m_autoChooser.setDefaultOption("Do Nothing", new WaitCommand(5));
-  m_autoChooser.addOption("Drive Backwards", new DumbAuto(driveSubsystem));
+  m_autoChooser.addOption("Drive 5 feet", new OtherDumbAuto(driveSubsystem));
   m_autoChooser.addOption("Drive Slightly forward then back", new OtherDumbAuto(driveSubsystem));//Slightly better auto than DumbAuto
   m_autoChooser.addOption("Blue Bottom Auto", new BottomScoreConeCube("BlueBottomIntakeCone", m_autoBuilder, driveSubsystem, intakeSystem, elSubsystem, armSystem));
   m_autoChooser.addOption("Straight Path", new StraightTest("StraightPath", m_autoBuilder, driveSubsystem, intakeSystem, elSubsystem, armSystem));
@@ -144,9 +144,14 @@ public void simulationPeriodic(){
   driveSubsystem.simulationPeriodic();
 }
 
+public void autonomousInit(){
+  driveSubsystem.resetEncoder();
+}
+
 public void autonomousPeriodic(){
-  System.out.println("Left Encoder: " + driveSubsystem.getLeftEncoder());
-  System.out.println("Right Encoder: " + driveSubsystem.getRightEncoder());
+  SmartDashboard.putNumber("Auto Left Encoder: ", driveSubsystem.getLeftEncoder());
+  SmartDashboard.putNumber("Auto Right Encoder: ",  driveSubsystem.getRightEncoder());
+  SmartDashboard.putNumber("Auto Average Encoder: ",  driveSubsystem.getAverageEncoder());
 }
   
 
@@ -162,7 +167,7 @@ public void autonomousPeriodic(){
   private void configureButtonBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     
-    //player1.rightTrigger(0.1).whileTrue(new IntakeGamePiece(intakeSystem));
+    player1.rightBumper().whileTrue((new IntakeGamePiece(intakeSystem)));
     //player1.a().onTrue(new RunClaw(clawSystem));
     //player1.y().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.MIDDLE));
     //player1.a().whileTrue(new RunElevator(armSystem, clawSystem, elSubsystem, ElevatorLevel.TOP));

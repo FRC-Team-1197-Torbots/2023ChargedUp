@@ -1,5 +1,6 @@
 package frc.robot.commands.Intake;
 
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.ElevatorArmConstants.GamePiece;
 import frc.robot.subsystems.Intake;
@@ -41,9 +42,10 @@ public class IntakeGamePiece extends CommandBase {
     }
     @Override
     public void execute(){
-        //intakeSystem.SetSolenoid(false);
-        //intakeSystem.SetRollerSpeed(0.3);
-        
+        intakeSystem.SetSolenoid(true);
+        //System.out.println("Intake Down");
+        //intakeSystem.SetRollerSpeed(0.5, 0.6);
+        /* 
         if(RobotContainer.player1_HoldButton.getRightBumperPressed()){
             if(m_IntakeState == IntakeState.DOWN){
                 m_IntakeState = IntakeState.UP;
@@ -56,9 +58,11 @@ public class IntakeGamePiece extends CommandBase {
             //System.out.println("bumper pressed");
             m_HopperState = HopperPiece.CONE;
         }
+        */
+        /* 
         switch(m_IntakeState){
             case UP:
-                //System.out.println("Intake up");
+                System.out.println("Intake up");
                 state = true;
                 intakeSystem.SetRollerSpeed(0, 0);
                 Timer.delay(0.5);
@@ -66,20 +70,21 @@ public class IntakeGamePiece extends CommandBase {
                 //System.out.println("intake running");
                 break;
             case DOWN:
-                //System.out.println("Intake down");
+                System.out.println("Intake down");
                 state = false;
                 intakeSystem.SetSolenoid(state);
                 Timer.delay(0.5);
                 //System.out.println("intake off");
-                intakeSystem.SetRollerSpeed(0.5, 0.6);//Cube speed: top = 0.5, bot = 0.6
+                //intakeSystem.SetRollerSpeed(0.5, 0.6);//Cube speed: top = 0.5, bot = 0.6
                  
                 break;
+            */
         }
             
             
         
 
-    }
+    
         //else{
         //intakeSystem.SetRollerSpeed(cubespeed);
         
@@ -88,11 +93,14 @@ public class IntakeGamePiece extends CommandBase {
 
     @Override
     public void end(boolean interrupted){
+        //System.out.println("Intake Up");
+        intakeSystem.SetSolenoid(false);
 
     }
 
     @Override
     public boolean isFinished(){
-        return false;
+        return !RobotContainer.player1.rightBumper().getAsBoolean();
     }
+
 }

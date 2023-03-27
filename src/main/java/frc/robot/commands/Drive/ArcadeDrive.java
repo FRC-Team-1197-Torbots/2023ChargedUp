@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.TeleopDriveConstants;
@@ -22,24 +23,28 @@ public class ArcadeDrive extends CommandBase {
   private final DriveTrain driveSubsystem;
   private XboxController m_player1;
   private double throttle, steer;
-
+  private double maxThrottle, maxSteer;
 
   
   private DoubleSupplier m_throttle;
   private DoubleSupplier m_steer;
+  private boolean low;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public ArcadeDrive(DriveTrain subsystem, DoubleSupplier throttleInput, DoubleSupplier steerInput) {
+  public ArcadeDrive(DriveTrain subsystem, DoubleSupplier throttleInput, DoubleSupplier steerInput, XboxController player1) {
     driveSubsystem = subsystem;
     //m_player1 = player1;
     m_throttle = throttleInput;
     m_steer = steerInput;
+    m_player1 = player1;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
+
+    low = false;
   }
 
 // Called when the command is initially scheduled.
@@ -61,14 +66,30 @@ public void execute() {
         driveSubsystem.shiftToHighGear();
     }
     */
+
+    if(m_player1.getRawButtonReleased(1)) {
+      low = !low;
+    }
+
+    SmartDashboard.putBoolean("low", low);
+
+  if(!low){
+    maxThrottle = 0.9;
+    maxSteer = 0.9;
+  } else if(low){
+    maxThrottle = 0.5;
+    maxSteer = 0.5;
+  }
   
   throttle = m_throttle.getAsDouble();
   steer = m_steer.getAsDouble();
   double sign = Math.signum(throttle);
-  throttle = sign * Math.pow(throttle, 2);
+  throttle = sign * Math.pow(throttle, 2) * maxThrottle;
   sign = Math.signum(steer);
-  steer = sign * Math.pow(steer, 2);
-  steer = -steer;
+  steer = sign * Math.pow(steer, 2) * maxSteer;
+
+  //steer *= -1;
+  
   if(Math.abs(throttle) < 0.025f) {
     throttle = 0;
   }
@@ -76,7 +97,9 @@ public void execute() {
   if(Math.abs(steer) < 0.035f) {
    steer = 0;
   }
+
   double leftSpeed, rightspeed;
+
   if(throttle > 0) {
     if(steer > 0) {
         leftSpeed = throttle - steer;
