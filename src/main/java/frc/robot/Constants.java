@@ -25,7 +25,14 @@ public final class Constants {
     public static final int RightBottom1ID = 12;
     public static final int RightBottom2ID = 2;
 
-    public static final double kTrackWidthMeters = Units.inchesToMeters(26.75);
+    public static final double kTrackWidth = Units.inchesToMeters(30);
+    public static final double kWheelBase = Units.inchesToMeters(30);
+    public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidth);
+
+    public static final double kMaxSpeedMetersPerSecond = Units.feetToMeters(15);
+    public static final double kMaxRotationRadiansPerSecond = Math.PI * 2.0;
+    public static final double kMaxRotationRadiansPerSecondSquared = Math.PI * 2.0;
+
     public static final double kGearRatio = 1;
     public static final double kWheelRadiusInches = 3;
     public static final double kLinearDistanceConversionFactor = (Units.inchesToMeters(1/(kGearRatio * 2 * Math.PI * Units.inchesToMeters(kWheelRadiusInches))*10)); // 1 / Circumference of wheel
@@ -59,7 +66,7 @@ public final class Constants {
     public static final double kVoltSecondSquaredPerMeter = 1.0313;
 
     public static final double kPDriveVel = 1.4051;
-    public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidthMeters);
+    //public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(DriveTrainConstants.kTrackWidthMeters);
 
     public static final double kMaxVelocity = 3;
     public static final double kMaxAcceleration = 3;
